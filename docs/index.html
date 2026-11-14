@@ -100,12 +100,14 @@
   /* Get started: three steps */
   .start { padding-top: 90px; padding-bottom: 110px; }
   .start > h2 { text-align: center; margin: 0; }
-  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 44px; counter-reset: step; }
+  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 44px; counter-reset: step; }
   .step { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 26px; counter-increment: step; }
   .step::before { content: counter(step); display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 700; margin-bottom: 18px; }
   .step b { display: block; font-size: 17px; }
   .step span { display: block; color: var(--muted); font-size: 15px; margin-top: 6px; }
-  .cmd { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding: 8px 8px 8px 14px; border-radius: 10px; background: var(--raised); border: 1px solid var(--line); font: 14px var(--mono); }
+  .cmd + .cmd { margin-top: 8px; }
+  .cmd span { overflow-x: auto; white-space: nowrap; min-width: 0; font-size: 13px; }
+  .cmd { display: flex; gap: 10px; justify-content: space-between; align-items: center; margin-top: 16px; padding: 8px 8px 8px 14px; border-radius: 10px; background: var(--raised); border: 1px solid var(--line); font: 14px var(--mono); }
   .cmd button { font: 600 12px var(--sans); border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 8px; padding: 5px 10px; cursor: pointer; }
   .needs { text-align: center; color: var(--faint); font-size: 14px; margin-top: 26px; }
 
@@ -134,7 +136,7 @@
     <a href="#features">Features</a>
     <a href="#start">Get started</a>
   </div>
-  <a class="button brand" href="#start">Get Aoi</a>
+  <a class="button brand" href="https://github.com/oliveira002/aoi-http"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>Get Aoi</a>
 </header>
 
 <main>
@@ -247,9 +249,10 @@
     <h2>Get started</h2>
     <div class="steps">
       <div class="step">
-        <b>Build it</b>
-        <span>From the project folder. It installs itself in Applications.</span>
-        <div class="cmd"><span>./bundle.sh</span><button data-copy="./bundle.sh">Copy</button></div>
+        <b>Get the code and build it</b>
+        <span>It installs itself in Applications.</span>
+        <div class="cmd"><span>git clone https://github.com/oliveira002/aoi-http.git</span><button data-copy="git clone https://github.com/oliveira002/aoi-http.git &amp;&amp; cd aoi-http &amp;&amp; ./bundle.sh">Copy</button></div>
+        <div class="cmd"><span>cd aoi-http &amp;&amp; ./bundle.sh</span></div>
       </div>
       <div class="step">
         <b>Import a spec</b>
