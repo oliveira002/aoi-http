@@ -1,0 +1,35 @@
+import SwiftUI
+
+struct AuthEditor: View {
+    @Binding var auth: Auth
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Segmented(selection: $auth.mode)
+            switch auth.mode {
+            case .none:
+                Text("No Authorization header is added")
+                    .font(.system(size: 13))
+                    .foregroundStyle(Theme.muted)
+            case .bearer:
+                labeled("Token") { VariableField(title: "{{token}}", text: $auth.token, font: Theme.mono) }
+            case .basic:
+                HStack(spacing: 12) {
+                    labeled("Username") { VariableField(title: "username", text: $auth.username) }
+                    labeled("Password") {
+                        SecureField("password", text: $auth.password).themedField()
+                    }
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: 520, alignment: .leading)
+    }
+
+    private func labeled(_ title: String, @ViewBuilder field: () -> some View) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Eyebrow(title)
+            field()
+        }
+    }
+}

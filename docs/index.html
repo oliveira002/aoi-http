@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aoi · API calls, without the noise</title>
+<meta name="description" content="Aoi is a lightweight, native macOS app for calling HTTP APIs. Import OpenAPI and Postman files, switch environments in one click, and write bodies that know the spec.">
+<link rel="icon" href="icon.png">
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --surface: #ffffff;
+    --raised: #f0f0ec;
+    --text: #1c1c1a;
+    --muted: #6b6b65;
+    --faint: #a1a19a;
+    --line: #e6e6e0;
+    --accent: #2f7a55;
+    --teal: #389ea3;
+    --accent-soft: #e6f2eb;
+    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 24px 60px -24px rgba(20,40,30,.35);
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", sans-serif;
+    --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111110;
+      --surface: #1a1a19;
+      --raised: #222220;
+      --text: #edede9;
+      --muted: #9b9b95;
+      --faint: #6b6b66;
+      --line: #2a2a28;
+      --accent: #74c69b;
+      --teal: #6cc4c8;
+      --accent-soft: #1e3227;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 30px 70px -24px rgba(0,0,0,.75);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  a { color: inherit; }
+  img { display: block; max-width: 100%; height: auto; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+  .accent { background: linear-gradient(100deg, var(--teal), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  code { font: .88em var(--mono); background: var(--raised); border: 1px solid var(--line); padding: 1px 6px; border-radius: 6px; }
+
+  /* Top bar */
+  .top { display: flex; align-items: center; gap: 28px; height: 72px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 18px; text-decoration: none; letter-spacing: -.01em; }
+  .brand img { width: 30px; height: 30px; }
+  .top .links { display: flex; gap: 26px; margin-left: auto; font-size: 15px; }
+  .top .links a { text-decoration: none; color: var(--muted); }
+  .top .links a:hover { color: var(--text); }
+
+  .button { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 12px; font-weight: 600; font-size: 15px; text-decoration: none; border: 1px solid var(--line); background: var(--surface); }
+  .button.primary { background: var(--text); border-color: transparent; color: var(--bg); }
+  .button.brand { background: linear-gradient(110deg, var(--teal), var(--accent)); border-color: transparent; color: #fff; padding: 9px 18px; font-size: 14px; }
+  @media (prefers-color-scheme: dark) { .button.brand { color: #0f1a14; } }
+  .button:hover { filter: brightness(1.08); }
+
+  /* Hero: text left, app right, bleeding off the edge */
+  .hero { display: grid; grid-template-columns: 5fr 7fr; gap: 56px; align-items: center; padding-top: 72px; padding-bottom: 96px; }
+  .tag { display: inline-flex; gap: 8px; align-items: center; padding: 6px 12px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font: 600 13px var(--sans); }
+  .tag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  h1 { font: 700 clamp(40px, 5.4vw, 64px)/1.04 var(--display); letter-spacing: -.035em; margin: 22px 0 0; }
+  .lead { font-size: 19px; color: var(--muted); margin: 22px 0 0; max-width: 460px; }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+  .app { border-radius: 16px; border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; background: var(--surface); width: 128%; }
+
+  /* Facts strip */
+  .name { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 56px 8px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+  .name .kanji { font: 300 64px/1 "Hiragino Mincho ProN", "Yu Mincho", serif; background: linear-gradient(160deg, var(--teal), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .name b { font: 700 32px/1.1 var(--display); letter-spacing: -.02em; margin-top: 14px; }
+  .name .meaning { color: var(--muted); font-style: italic; margin-top: 6px; }
+  .name .local { margin-top: 18px; padding: 6px 14px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font: 600 13px var(--sans); }
+
+  /* Numbered feature rows */
+  .features { padding-top: 110px; padding-bottom: 40px; }
+  .row { display: grid; grid-template-columns: 4fr 7fr; gap: 64px; align-items: center; padding: 56px 0; }
+  .row.flip { grid-template-columns: 7fr 4fr; }
+  .row.flip .text { order: 2; }
+  .num { font: 600 14px var(--mono); color: var(--accent); }
+  h2 { font: 700 clamp(28px, 3.4vw, 36px)/1.15 var(--display); letter-spacing: -.025em; margin: 10px 0 0; }
+  .text p { color: var(--muted); margin: 16px 0 0; }
+  .checks { margin: 20px 0 0; padding: 0; list-style: none; }
+  .checks li { display: flex; gap: 10px; margin: 9px 0; color: var(--muted); font-size: 16px; }
+  .checks li::before { content: "✓"; color: var(--accent); font-weight: 700; }
+  .frame { border-radius: 14px; border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; background: var(--surface); }
+
+  /* Also in the box */
+  .box { padding-top: 80px; padding-bottom: 80px; text-align: center; }
+  .box h2 { margin: 0; }
+  .box p { color: var(--muted); margin: 12px 0 0; }
+  .pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 860px; margin: 32px auto 0; }
+  .pills span { padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 15px; }
+
+  /* Get started: three steps */
+  .start { padding-top: 90px; padding-bottom: 110px; }
+  .start > h2 { text-align: center; margin: 0; }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 44px; counter-reset: step; }
+  .step { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 26px; counter-increment: step; }
+  .step::before { content: counter(step); display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 700; margin-bottom: 18px; }
+  .step b { display: block; font-size: 17px; }
+  .step span { display: block; color: var(--muted); font-size: 15px; margin-top: 6px; }
+  .cmd { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding: 8px 8px 8px 14px; border-radius: 10px; background: var(--raised); border: 1px solid var(--line); font: 14px var(--mono); }
+  .cmd button { font: 600 12px var(--sans); border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 8px; padding: 5px 10px; cursor: pointer; }
+  .needs { text-align: center; color: var(--faint); font-size: 14px; margin-top: 26px; }
+
+  footer { border-top: 1px solid var(--line); padding: 32px 0 44px; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  footer .brand { font-size: 15px; color: var(--text); }
+  footer .brand img { width: 22px; height: 22px; }
+  footer .note { margin-left: auto; }
+
+  @media (max-width: 900px) {
+    .top .links { display: none; }
+    .top .button.brand { margin-left: auto; }
+    .hero, .row, .row.flip { grid-template-columns: 1fr; gap: 36px; }
+    .row.flip .text { order: 0; }
+    .app { width: 100%; }
+    .steps { grid-template-columns: 1fr; }
+    .features { padding-top: 64px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap top">
+  <a class="brand" href="#"><img src="icon.png" alt="">Aoi</a>
+  <div class="links">
+    <a href="#features">Features</a>
+    <a href="#start">Get started</a>
+  </div>
+  <a class="button brand" href="#start">Get Aoi</a>
+</header>
+
+<main>
+  <section class="wrap hero">
+    <div>
+      <span class="tag">Native for macOS</span>
+      <h1>API calls, <span class="accent">without the noise.</span></h1>
+      <p class="lead">Aoi imports your OpenAPI and Postman files and gives you a fast, quiet place to send requests, switch environments and read responses.</p>
+      <div class="actions">
+        <a class="button primary" href="#start">Get started</a>
+        <a class="button" href="#features">Take a tour</a>
+      </div>
+    </div>
+    <div class="app">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="request-dark.png">
+        <img src="request-light.png" alt="Aoi showing a request to a Bookshelf API and its JSON response" width="2000" height="1247">
+      </picture>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="name">
+      <span class="kanji" lang="ja">青</span>
+      <b>Aoi</b>
+      <span class="meaning">the blue-green of the sea</span>
+      <span class="local">Local · no account · no cloud</span>
+    </div>
+  </div>
+
+  <section class="wrap features" id="features">
+    <div class="row">
+      <div class="text">
+        <div class="num">01</div>
+        <h2>Bodies that know the spec</h2>
+        <p>Aoi reads each endpoint's schema from your spec and helps as you type, so a request body matches the API before you send it.</p>
+        <ul class="checks">
+          <li>Fields with their types and descriptions</li>
+          <li>Allowed values for enums, at any depth</li>
+          <li>Required fields flagged, examples in one click</li>
+        </ul>
+      </div>
+      <div class="frame">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="images/fields-dark.png">
+          <img src="images/fields-light.png" alt="Field suggestions in the body editor" width="1440" height="600">
+        </picture>
+      </div>
+    </div>
+
+    <div class="row flip">
+      <div class="text">
+        <div class="num">02</div>
+        <h2>One base URL per environment</h2>
+        <p>An environment is a base URL plus the few values it needs. Pick Local, Staging or Production from the toolbar and every request follows, with anything still missing highlighted.</p>
+      </div>
+      <div class="frame">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="images/environments-dark.png">
+          <img src="images/environments-light.png" alt="An environment with its base URL" width="1600" height="998">
+        </picture>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="text">
+        <div class="num">03</div>
+        <h2>Jump anywhere with ⌘K</h2>
+        <p>Type a few letters to open any request, switch environment, or copy the current request as cURL. Tabs keep your work side by side.</p>
+      </div>
+      <div class="frame">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="images/palette-dark.png">
+          <img src="images/palette-light.png" alt="The command palette" width="1600" height="998">
+        </picture>
+      </div>
+    </div>
+
+    <div class="row flip">
+      <div class="text">
+        <div class="num">04</div>
+        <h2>A second look before production</h2>
+        <p>Mark an environment as production and Aoi shows the full URL and asks before sending, so a request only reaches production when you mean it to.</p>
+      </div>
+      <div class="frame">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="images/production-dark.png">
+          <img src="images/production-light.png" alt="The production confirmation" width="1600" height="998">
+        </picture>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap box">
+    <h2>Also in the box</h2>
+    <p>The small things that make a daily tool pleasant.</p>
+    <div class="pills">
+      <span>Response values as variables</span>
+      <span>Paste and copy cURL</span>
+      <span>Path fields for <code>{{ids}}</code></span>
+      <span>Collapsible JSON with search</span>
+      <span>Session history</span>
+      <span>Tabs</span>
+      <span>Light and dark</span>
+      <span>OpenAPI 3, Swagger 2, Postman</span>
+    </div>
+  </section>
+
+  <section class="wrap start" id="start">
+    <h2>Get started</h2>
+    <div class="steps">
+      <div class="step">
+        <b>Build it</b>
+        <span>From the project folder. It installs itself in Applications.</span>
+        <div class="cmd"><span>./bundle.sh</span><button data-copy="./bundle.sh">Copy</button></div>
+      </div>
+      <div class="step">
+        <b>Import a spec</b>
+        <span>Drop an OpenAPI or Postman file on the sidebar, or press <code>⌘O</code>.</span>
+      </div>
+      <div class="step">
+        <b>Pick an environment</b>
+        <span>Give it a base URL, open a request and click Send.</span>
+      </div>
+    </div>
+    <p class="needs">Needs macOS 14 or later and Swift 5.10.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#"><img src="icon.png" alt="">Aoi</a>
+    <span class="note">Made by João Oliveira</span>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('[data-copy]').forEach(button => {
+    button.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(button.dataset.copy);
+      button.textContent = 'Copied';
+      setTimeout(() => { button.textContent = 'Copy'; }, 1400);
+    });
+  });
+</script>
+</body>
+</html>
