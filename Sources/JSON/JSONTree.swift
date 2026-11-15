@@ -48,13 +48,19 @@ enum JSONTree {
 
     static let matchLimit = 1000
 
-    // Rows whose key or value contains the query, in display order.
+    // Rows whose key or value contains the query, in display order. Plain case-insensitive matching on the
+    // raw value: locale-aware matching and rendering each value as JSON made typing lag on big responses.
+    // A query with a quote or backslash still matches the JSON form, so "active" finds exact strings.
     static func search(_ root: Node, for query: String) -> [Match] {
         var matches: [Match] = []
+        let asJSON = query.contains { $0 == "\"" || $0 == "\\" }
+        func contains(_ text: String?) -> Bool {
+            text?.range(of: query, options: .caseInsensitive) != nil
+        }
         func visit(_ node: Node, path: String, key: String?, ancestors: [(path: String, index: Int)]) {
             guard matches.count < matchLimit else { return }
-            let keyHit = key?.localizedCaseInsensitiveContains(query) == true
-            let valueHit = node.isScalar && node.json.localizedCaseInsensitiveContains(query)
+            let keyHit = contains(key)
+            let valueHit = node.isScalar && contains(asJSON ? node.json : node.string ?? "null")
             if keyHit || valueHit { matches.append(Match(path: path, ancestors: ancestors)) }
             for (index, child) in children(of: node, path: path).enumerated() {
                 visit(child.node, path: child.path, key: child.isIndex ? nil : child.label, ancestors: ancestors + [(path, index)])
@@ -70,7 +76,16 @@ enum JSONTree {
     }
 
     static func component(_ key: String) -> String {
-        key.wholeMatch(of: #/[A-Za-z_$][A-Za-z0-9_$]*/#) != nil ? ".\(key)" : "[\(Node.scalar(key, plain: false).json)]"
+        isIdentifier(key) ? ".\(key)" : "[\(Node.scalar(key, plain: false).json)]"
+    }
+
+    // [A-Za-z_$][A-Za-z0-9_$]*, checked byte by byte: this runs for every key in the tree.
+    private static func isIdentifier(_ key: String) -> Bool {
+        func isStart(_ byte: UInt8) -> Bool {
+            (65...90).contains(byte) || (97...122).contains(byte) || byte == UInt8(ascii: "_") || byte == UInt8(ascii: "$")
+        }
+        guard let first = key.utf8.first, isStart(first) else { return false }
+        return key.utf8.allSatisfy { isStart($0) || (48...57).contains($0) }
     }
 
     // One line that stands in for a collapsed object or list.

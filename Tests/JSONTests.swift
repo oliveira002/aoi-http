@@ -1,4 +1,4 @@
-import Foundation
+import AppKit
 import Testing
 @testable import Aoi
 
@@ -203,6 +203,37 @@ struct JSONTreeTests {
         #expect(children.map(\.path) == ["$.a", "$.a#1", "$.list"])
     }
 
+    @Test(arguments: [("name", "$.name"), ("_id$2", "$._id$2"), ("first-name", #"$["first-name"]"#), ("1st", #"$["1st"]"#), ("", #"$[""]"#)])
+    func pathsUseDotsOnlyForIdentifierKeys(key: String, path: String) {
+        // Arrange / Act
+        let result = "$" + JSONTree.component(key)
+
+        // Assert
+        #expect(result == path)
+    }
+
+    @Test func aQuotedQueryFindsExactStrings() {
+        // Arrange
+        let tree = Node.parseJSON(#"{"a": "active", "b": "inactive"}"#)!
+
+        // Act
+        let matches = JSONTree.search(tree, for: #""active""#)
+
+        // Assert
+        #expect(matches.map(\.path) == ["$.a"])
+    }
+
+    @Test func searchMatchesNull() {
+        // Arrange
+        let tree = Node.parseJSON(#"{"a": null, "b": 1}"#)!
+
+        // Act
+        let matches = JSONTree.search(tree, for: "NULL")
+
+        // Assert
+        #expect(matches.map(\.path) == ["$.a"])
+    }
+
     @Test func searchMatchesValuesIgnoringCase() {
         // Arrange / Act
         let matches = JSONTree.search(tree, for: "needle")
@@ -298,5 +329,87 @@ struct JSONTreeRowsTests {
 
         // Assert
         #expect(rows.count == 121)
+    }
+}
+
+struct JSONSyntaxTests {
+    // Read through NSTextStorage, as the body editor does. Unlike a native string, a long one traps on
+    // any index past its end, which is how a stray last quote once crashed the editor.
+    func tokens(_ native: String) -> [String] {
+        let text = NSTextStorage(string: native).string
+        return JSONSyntax.tokens(in: text).map { token in
+            let kind = switch token.color {
+            case Theme.JSONColors.key: "key"
+            case Theme.JSONColors.string: "string"
+            case Theme.JSONColors.number: "number"
+            case Theme.JSONColors.boolean: "boolean"
+            default: "null"
+            }
+            return "\(kind) \(text[token.range])"
+        }
+    }
+
+    @Test func colorsEveryKindOfToken() {
+        // Arrange / Act
+        let result = tokens(#"{"id": "x", "n": -1.5e3, "ok": true, "z": null}"#)
+
+        // Assert
+        #expect(result == [#"key "id""#, #"string "x""#, #"key "n""#, "number -1.5e3", #"key "ok""#, "boolean true", #"key "z""#, "null null"])
+    }
+
+    @Test func escapedQuotesStayInsideTheString() {
+        // Arrange / Act
+        let result = tokens(#"{"a": "say \"hi\""}"#)
+
+        // Assert
+        #expect(result == [#"key "a""#, #"string "say \"hi\"""#])
+    }
+
+    @Test func aKeyMayHaveSpaceBeforeItsColon() {
+        // Arrange / Act
+        let result = tokens("{\"a\" \n : 1}")
+
+        // Assert
+        #expect(result == [#"key "a""#, "number 1"])
+    }
+
+    @Test func keywordsNeedWholeWords() {
+        // Arrange / Act
+        let result = tokens("[truex, nullable, xtrue, false]")
+
+        // Assert
+        #expect(result == ["boolean false"])
+    }
+
+    @Test func anUnterminatedStringIsLeftPlain() {
+        // Arrange / Act
+        let result = tokens(#"{"a": "ab 12"#)
+
+        // Assert
+        #expect(result == [#"key "a""#, "number 12"])
+    }
+
+    @Test func aQuoteJustTypedAtTheEndIsLeftPlain() {
+        // Arrange / Act
+        let result = tokens("{\n  \"shelf\": \"X\",\n  \"")
+
+        // Assert
+        #expect(result == [#"key "shelf""#, #"string "X""#])
+    }
+
+    @Test func escapedQuotesAfterAnUnclosedStringStayPlain() {
+        // Arrange / Act
+        let result = tokens(#"{"a": "x \"b\": 1, \"c\": true"#)
+
+        // Assert
+        #expect(result == [#"key "a""#, "number 1", "boolean true"])
+    }
+
+    @Test func numbersNeedADigitAfterEachPart() {
+        // Arrange / Act
+        let result = tokens("[-, 1., 2e, 3.5E+2]")
+
+        // Assert
+        #expect(result == ["number 1", "number 2", "number 3.5E+2"])
     }
 }
