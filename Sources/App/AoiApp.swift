@@ -32,7 +32,8 @@ struct AoiApp: App {
             ContentView()
                 .environment(store)
                 .focusedSceneValue(\.workspace, store)
-                .frame(minWidth: 1000, minHeight: 660)
+                // Tall enough for the request card and the 200pt the response always keeps; any less and the page overflows.
+                .frame(minWidth: 1000, minHeight: 700)
         }
         .windowStyle(.hiddenTitleBar)
         .commands { WorkspaceCommands() }
