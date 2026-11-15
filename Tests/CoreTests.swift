@@ -81,6 +81,17 @@ struct TextInputTests {
         // Assert
         #expect(secret == "eyJabc.def.ghi")
     }
+
+    @Test func pastedSecretDropsWhitespaceInside() {
+        // Arrange
+        let pasted = "eyJabc.\n  def. ghi\t"
+
+        // Act
+        let secret = pasted.pastedSecret
+
+        // Assert
+        #expect(secret == "eyJabc.def.ghi")
+    }
 }
 
 struct JWTTests {

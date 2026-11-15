@@ -1,10 +1,11 @@
 import Foundation
 
 extension String {
-    // A value pasted as a whole: one line, trimmed, without a leading "Bearer ".
+    // A token never holds whitespace, so all of it goes, along with a leading "Bearer ".
     var pastedSecret: String {
-        let cleaned = cleanedInput(previous: "")
-        return cleaned.hasPrefix("Bearer ") ? String(cleaned.dropFirst(7)).trimmingCharacters(in: .whitespaces) : cleaned
+        let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)
+        let token = trimmed.hasPrefix("Bearer ") ? trimmed.dropFirst(7) : Substring(trimmed)
+        return token.filter { !$0.isWhitespace }
     }
 
     // Newlines never belong in a single-line value. Anything other than typing or deleting one character

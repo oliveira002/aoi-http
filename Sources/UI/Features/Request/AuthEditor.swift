@@ -12,12 +12,13 @@ struct AuthEditor: View {
                     .font(.system(size: 13))
                     .foregroundStyle(Theme.muted)
             case .bearer:
-                labeled("Token") { VariableField(title: "{{token}}", text: $auth.token, font: Theme.mono) }
+                labeled("Token") { VariableField(title: "{{token}}", text: Binding(get: { auth.token }, set: { auth.token = $0.pastedSecret }), font: Theme.mono) }
             case .basic:
                 HStack(spacing: 12) {
                     labeled("Username") { VariableField(title: "username", text: $auth.username) }
                     labeled("Password") {
-                        SecureField("password", text: $auth.password).themedField()
+                        SecureField("password", text: Binding(get: { auth.password }, set: { auth.password = $0.cleanedInput(previous: auth.password) }))
+                            .themedField()
                     }
                 }
             }
