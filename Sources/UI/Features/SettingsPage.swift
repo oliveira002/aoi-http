@@ -14,9 +14,16 @@ struct SettingsPage: View {
                 }
 
                 section("Production") {
-                    row("Ask before sending", "On environments marked Production. Mark them from the Environments tab.") {
-                        Segmented(options: [(.all, "Every request"), (.writes, "Changes only"), (.off, "Never")], selection: $store.settings.productionGuard)
+                    row("Ask before sending to production", "Applies to environments marked with the shield. Mark them from the Environments tab.") {
+                        EmptyView()
                     }
+                    divider
+                    VStack(spacing: 2) {
+                        guardOption(.all, "Every request", "Asks before anything goes out, reads included.", icon: "shield.fill")
+                        guardOption(.writes, "Only changes", "Asks before POST, PUT, PATCH and DELETE. Reads send right away.", icon: "shield.lefthalf.filled")
+                        guardOption(.off, "Never ask", "Production requests send right away, like any other.", icon: "shield.slash")
+                    }
+                    .padding(8)
                 }
 
                 section("Requests") {
@@ -51,6 +58,42 @@ struct SettingsPage: View {
             Eyebrow(title)
             VStack(spacing: 0, content: content).card()
         }
+    }
+
+    private func guardOption(_ mode: AppSettings.Guard, _ title: String, _ detail: String, icon: String) -> some View {
+        let selected = store.settings.productionGuard == mode
+        var rule = AppSettings()
+        rule.productionGuard = mode
+        return Button { store.settings.productionGuard = mode } label: {
+            HStack(spacing: 12) {
+                Image(systemName: selected ? "largecircle.fill.circle" : "circle")
+                    .font(.system(size: 15))
+                    .foregroundStyle(selected ? Theme.accent : Theme.faint)
+                Image(systemName: icon)
+                    .font(.system(size: 14))
+                    .foregroundStyle(mode == .off ? Theme.muted : Theme.bad)
+                    .frame(width: 18)
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text(title).font(.system(size: 13, weight: .medium))
+                        if mode == AppSettings().productionGuard { Pill(text: "Default", color: Theme.muted) }
+                    }
+                    Text(detail).font(.system(size: 12)).foregroundStyle(Theme.muted)
+                }
+                Spacer(minLength: 12)
+                HStack(spacing: 4) {
+                    ForEach([HTTPMethod.GET, .POST, .PUT, .PATCH, .DELETE], id: \.self) { method in
+                        MethodTag(method: method).opacity(rule.asksBeforeSending(method) ? 1 : 0.22)
+                    }
+                }
+                .help("Bright methods ask first. Faded ones send right away.")
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 9)
+            .background(selected ? Theme.accentSoft.opacity(0.6) : .clear, in: .rect(cornerRadius: 10))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private func row(_ title: String, _ detail: String?, @ViewBuilder control: () -> some View) -> some View {

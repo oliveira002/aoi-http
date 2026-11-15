@@ -72,6 +72,7 @@ struct ViewSmokeTests {
     @Test func theProductionPopupDraws() {
         // Arrange
         let victim = populatedStore()
+        victim.draft.method = .POST
         victim.draft.url = "https://api.test/x"
 
         // Act

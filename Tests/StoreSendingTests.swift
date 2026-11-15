@@ -37,6 +37,7 @@ struct StoreSendingTests {
         let production = APIEnvironment(name: "API PRD")
         victim.environments = [production]
         victim.activeEnvironmentID = production.id
+        victim.draft.method = .POST
         victim.draft.url = "https://example.test/x"
 
         // Act
@@ -47,12 +48,29 @@ struct StoreSendingTests {
         #expect(!victim.isSending)
     }
 
+    @Test func aReadOnProductionSendsWithoutAsking() {
+        // Arrange
+        let victim = makeStore()
+        let production = APIEnvironment(name: "API PRD")
+        victim.environments = [production]
+        victim.activeEnvironmentID = production.id
+        victim.draft.url = "https://example.test/x"
+
+        // Act
+        victim.requestSend()
+
+        // Assert
+        #expect(!victim.sendNeedsConfirmation)
+        #expect(!victim.confirmingProduction)
+    }
+
     @Test func pressingSendAgainDoesNotBypassTheGuard() {
         // Arrange
         let victim = makeStore()
         let production = APIEnvironment(name: "API PRD")
         victim.environments = [production]
         victim.activeEnvironmentID = production.id
+        victim.draft.method = .POST
         victim.draft.url = "https://example.test/x"
         victim.requestSend()
 

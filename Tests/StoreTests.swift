@@ -9,6 +9,7 @@ struct StoreGuardTests {
         let production = APIEnvironment(name: "API PRD")
         store.environments = [production]
         store.activeEnvironmentID = production.id
+        store.draft.method = .POST
         store.draft.url = "https://example.test/x"
         return store
     }

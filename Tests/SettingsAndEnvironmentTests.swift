@@ -13,7 +13,7 @@ struct AppSettingsTests {
         // Assert
         #expect(victim.timeout == 15)
         #expect(victim.historyLimit == 500)
-        #expect(victim.productionGuard == .all)
+        #expect(victim.productionGuard == .writes)
     }
 
     @Test func savedValuesSnapToTheNearestPreset() throws {
@@ -29,11 +29,37 @@ struct AppSettingsTests {
         #expect(victim.jsonExpandLevels == 3)
     }
 
-    @Test(arguments: [(AppSettings.Guard.all, HTTPMethod.GET, true), (.writes, .GET, false), (.writes, .DELETE, true), (.off, .POST, false)])
-    func guardModeDecidesWhoAsks(mode: AppSettings.Guard, method: HTTPMethod, asks: Bool) {
+    @Test(arguments: HTTPMethod.allCases)
+    func everyRequestAsksForAnyMethod(method: HTTPMethod) {
         // Arrange
         var victim = AppSettings()
-        victim.productionGuard = mode
+        victim.productionGuard = .all
+
+        // Act
+        let result = victim.asksBeforeSending(method)
+
+        // Assert
+        #expect(result)
+    }
+
+    @Test(arguments: HTTPMethod.allCases)
+    func neverAskSkipsEveryMethod(method: HTTPMethod) {
+        // Arrange
+        var victim = AppSettings()
+        victim.productionGuard = .off
+
+        // Act
+        let result = victim.asksBeforeSending(method)
+
+        // Assert
+        #expect(!result)
+    }
+
+    @Test(arguments: [(HTTPMethod.GET, false), (.HEAD, false), (.OPTIONS, false), (.POST, true), (.PUT, true), (.PATCH, true), (.DELETE, true)])
+    func onlyChangesAsksForWrites(method: HTTPMethod, asks: Bool) {
+        // Arrange
+        var victim = AppSettings()
+        victim.productionGuard = .writes
 
         // Act
         let result = victim.asksBeforeSending(method)

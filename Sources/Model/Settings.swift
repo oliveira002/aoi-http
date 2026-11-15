@@ -9,7 +9,7 @@ struct AppSettings: Codable, Equatable {
         case system, light, dark
     }
 
-    var productionGuard = Guard.all
+    var productionGuard = Guard.writes
     var timeout: Double = 60
     var historyLimit = 500
     var jsonExpandLevels = 2
