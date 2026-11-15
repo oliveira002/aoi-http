@@ -15,14 +15,15 @@ struct VariablesEditor: View {
                 }
             case .session:
                 header(eyebrow: "This Session", name: nil, subtitle: "Values taken from responses. They override everything else and are gone when you quit Aoi.") {
-                    Button("Clear") { store.sessionVariables = [] }.buttonStyle(PillButtonStyle())
+                    ConfirmedButton(title: "Clear", question: "Clear all session values?") { store.sessionVariables = [] }
+                        .buttonStyle(PillButtonStyle())
                 }
             case .collection(let id):
                 if let collection = store.collection(id) {
                     header(
                         eyebrow: "Collection",
                         name: $store.collections.element(collection).name,
-                        subtitle: "\(collection.requests.count) requests. These override globals for requests in this collection."
+                        subtitle: "\(Format.count(collection.requests.count, "request")). These override globals for requests in this collection."
                     ) {
                         Button("Delete") { store.pendingDeletion = .collection(id) }.buttonStyle(PillButtonStyle())
                     }

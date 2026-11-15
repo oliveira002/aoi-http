@@ -16,7 +16,7 @@ struct CountLabel: View {
     let count: Int
 
     var body: some View {
-        Text("\(count)").font(.system(size: 11.5)).foregroundStyle(Theme.faint).monospacedDigit()
+        Text("\(count)").font(.system(size: 11)).foregroundStyle(Theme.faint).monospacedDigit()
     }
 }
 
@@ -59,7 +59,7 @@ struct PageHeader<Title: View, Actions: View>: View {
     @ViewBuilder var actions: Actions
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: 12) {
+        HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 Eyebrow(eyebrow)
                 title
@@ -68,12 +68,17 @@ struct PageHeader<Title: View, Actions: View>: View {
                 Text(subtitle).font(.system(size: 13)).foregroundStyle(Theme.muted)
             }
             Spacer(minLength: 24)
-            actions
+            actions.fixedSize()
         }
     }
 }
 
 extension View {
+    // Small glyphs still get a click area of at least 22pt, the macOS minimum for a comfortable target.
+    func hitTarget() -> some View {
+        frame(minWidth: 22, minHeight: 22).contentShape(Rectangle())
+    }
+
     // A menu that looks like a pill button, without the disclosure arrow.
     func pillMenu() -> some View {
         menuStyle(.button)

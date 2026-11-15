@@ -42,7 +42,7 @@ struct ViewSmokeTests {
         #expect(victim.sidebarTab == tab)
     }
 
-    @Test(arguments: [Detail.request, .settings, .variables(.globals)])
+    @Test(arguments: [Detail.request, .variables(.globals)])
     func everyPageDraws(detail: Detail) {
         // Arrange
         let victim = populatedStore()
@@ -93,5 +93,44 @@ struct ViewSmokeTests {
 
         // Assert
         #expect(victim.showingPalette)
+    }
+
+    @Test func theSettingsWindowDraws() {
+        // Arrange
+        let victim = populatedStore()
+        let host = NSHostingView(rootView: SettingsPage().environment(victim))
+
+        // Act
+        host.layoutSubtreeIfNeeded()
+
+        // Assert
+        #expect(host.fittingSize.width == 680)
+    }
+
+    @Test func aRawBodyDraws() {
+        // Arrange
+        let host = NSHostingView(rootView: RawBodyView(text: "{\n  \"id\": 1\n}", isJSON: true).frame(width: 400, height: 300))
+
+        // Act
+        host.layoutSubtreeIfNeeded()
+
+        // Assert
+        #expect(host.fittingSize.height == 300)
+    }
+
+    @Test func aRowLeavesVariableNamesUntilItsMenuOpens() {
+        // Arrange
+        var asked = 0
+        let variables = JSONRowView.VariableActions(suggestions: { asked += 1; return VariableNaming.suggestions(forPath: "$.id", inUse: []) }, set: { _ in })
+        let actions = JSONRowView.Actions(toggle: {}, expandAll: {}, collapseAll: {}, copy: {}, copyPath: {}, variables: variables)
+        let row = JSONTree.Row(id: "$.id", depth: 0, label: "id", isIndex: false, kind: .node(.scalar("bk_1", plain: false)))
+        let host = NSHostingView(rootView: JSONRowView(row: row, node: .scalar("bk_1", plain: false), isOpen: false, mark: .none, actions: actions))
+
+        // Act
+        host.frame = NSRect(x: 0, y: 0, width: 400, height: 30)
+        host.layoutSubtreeIfNeeded()
+
+        // Assert
+        #expect(asked == 0)
     }
 }

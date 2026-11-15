@@ -43,7 +43,8 @@ extension Store {
         case .useEnvironment(let id): activeEnvironmentID = id
         case .newTab: newRequest()
         case .closeTab: closeTab(activeTabID)
-        case .settings: detail = .settings
+        // Only a view can open the Settings window; CommandPalette does that before calling here.
+        case .settings: break
         case .globals: showVariables(.globals)
         case .importSpec: showingImporter = true
         case .copyCurl(let hidingSecrets): curlCommand(hidingSecrets: hidingSecrets).map(Pasteboard.copy)

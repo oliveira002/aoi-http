@@ -13,9 +13,10 @@ struct HistoryPanel: View {
                 Spacer()
             } else {
                 HStack {
-                    Text("\(store.history.count) requests").font(.system(size: 12)).foregroundStyle(Theme.faint)
+                    Text(Format.count(store.history.count, "request")).font(.system(size: 12)).foregroundStyle(Theme.faint)
                     Spacer()
-                    Button("Clear") { store.history.removeAll() }.buttonStyle(LinkButtonStyle())
+                    ConfirmedButton(title: "Clear", question: "Clear all history?") { store.history.removeAll() }
+                        .buttonStyle(LinkButtonStyle())
                 }
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 1) {
@@ -65,7 +66,7 @@ struct HistoryRow: View {
             Spacer(minLength: 6)
             VStack(alignment: .trailing, spacing: 2) {
                 Text(entry.statusCode.map(String.init) ?? "Failed")
-                    .font(.system(size: 11.5, weight: .semibold))
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(Theme.status(entry.statusCode))
                     .monospacedDigit()
                 Text(entry.date, format: .dateTime.hour().minute())

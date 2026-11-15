@@ -5,7 +5,9 @@ import SwiftUI
 struct RequestCard: View {
     @Environment(Store.self) private var store
     @State private var tab = RequestSection.params
+    // What the user dragged to. The card can be shorter when the window is too small for it.
     @State private var height: CGFloat = 280
+    @State private var renderedHeight: CGFloat = 280
     @State private var dragStart: CGFloat?
     @State private var hoveringHandle = false
     @State private var cursorPushed = false
@@ -29,7 +31,12 @@ struct RequestCard: View {
             }
             .padding(18)
         }
-        .frame(height: height)
+        .frame(minHeight: 180, maxHeight: height)
+        .background {
+            GeometryReader { proxy in
+                Color.clear.onChange(of: proxy.size.height, initial: true) { renderedHeight = $1 }
+            }
+        }
         .card()
         .overlay(alignment: .bottom) { resizeHandle }
     }
@@ -55,7 +62,7 @@ struct RequestCard: View {
                 // Global, because the handle itself moves as the card grows.
                 DragGesture(minimumDistance: 1, coordinateSpace: .global)
                     .onChanged { value in
-                        let start = dragStart ?? height
+                        let start = dragStart ?? renderedHeight
                         dragStart = start
                         height = min(max(start + value.translation.height, 180), 640)
                         updateCursor()

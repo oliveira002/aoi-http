@@ -1,56 +1,50 @@
 import SwiftUI
 
+// The standard Settings window (⌘,). Changes apply right away, as on any Mac.
 struct SettingsPage: View {
     @Environment(Store.self) private var store
 
     var body: some View {
         @Bindable var store = store
-        ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
-                PageHeader(eyebrow: "Aoi", subtitle: "Changes apply right away.") {
-                    Text("Settings")
-                } actions: {
+        VStack(alignment: .leading, spacing: 22) {
+            section("Production") {
+                row("Ask before sending to production", "Applies to environments marked with the shield. Mark them from the Environments tab.") {
                     EmptyView()
                 }
-
-                section("Production") {
-                    row("Ask before sending to production", "Applies to environments marked with the shield. Mark them from the Environments tab.") {
-                        EmptyView()
-                    }
-                    divider
-                    VStack(spacing: 2) {
-                        guardOption(.all, "Every request", "Asks before anything goes out, reads included.", icon: "shield.fill")
-                        guardOption(.writes, "Only changes", "Asks before POST, PUT, PATCH and DELETE. Reads send right away.", icon: "shield.lefthalf.filled")
-                        guardOption(.off, "Never ask", "Production requests send right away, like any other.", icon: "shield.slash")
-                    }
-                    .padding(8)
+                divider
+                VStack(spacing: 2) {
+                    guardOption(.all, "Every request", "Asks before anything goes out, reads included.", icon: "shield.fill")
+                    guardOption(.writes, "Only changes", "Asks before POST, PUT, PATCH and DELETE. Reads send right away.", icon: "shield.lefthalf.filled")
+                    guardOption(.off, "Never ask", "Production requests send right away, like any other.", icon: "shield.slash")
                 }
+                .padding(8)
+            }
 
-                section("Requests") {
-                    row("Timeout", "How long to wait for a response before giving up.") {
-                        Segmented(options: [(15, "15s"), (30, "30s"), (60, "1m"), (120, "2m"), (300, "5m")], selection: $store.settings.timeout)
-                    }
-                    divider
-                    row("History", "Kept while Aoi is open and cleared when you quit. Older requests drop off the end.") {
-                        Segmented(options: [(100, "100"), (500, "500"), (1000, "1,000"), (5000, "5,000")], selection: $store.settings.historyLimit)
-                    }
+            section("Requests") {
+                row("Timeout", "How long to wait for a response before giving up.") {
+                    Segmented(options: [(15, "15s"), (30, "30s"), (60, "1m"), (120, "2m"), (300, "5m")], selection: $store.settings.timeout)
                 }
-
-                section("Responses") {
-                    row("JSON opens at", "Levels of a response tree that start expanded.") {
-                        Segmented(options: [(0, "Collapsed"), (1, "1 level"), (2, "2 levels"), (3, "3 levels")], selection: $store.settings.jsonExpandLevels)
-                    }
-                }
-
-                section("Appearance") {
-                    row("Theme", nil) {
-                        Segmented(options: [(.system, "System"), (.light, "Light"), (.dark, "Dark")], selection: $store.settings.appearance)
-                    }
+                divider
+                row("History", "Kept while Aoi is open and cleared when you quit. Older requests drop off the end.") {
+                    Segmented(options: [(100, "100"), (500, "500"), (1000, "1,000"), (5000, "5,000")], selection: $store.settings.historyLimit)
                 }
             }
-            .frame(maxWidth: 760, alignment: .leading)
+
+            section("Responses") {
+                row("JSON opens at", "Levels of a response tree that start expanded.") {
+                    Segmented(options: [(0, "Collapsed"), (1, "1 level"), (2, "2 levels"), (3, "3 levels")], selection: $store.settings.jsonExpandLevels)
+                }
+            }
+
+            section("Appearance") {
+                row("Theme", nil) {
+                    Segmented(options: [(.system, "System"), (.light, "Light"), (.dark, "Dark")], selection: $store.settings.appearance)
+                }
+            }
         }
-        .scrollIndicators(.never)
+        .padding(24)
+        .frame(width: 680)
+        .background(Theme.bg)
     }
 
     private func section(_ title: String, @ViewBuilder content: () -> some View) -> some View {
@@ -99,7 +93,7 @@ struct SettingsPage: View {
     private func row(_ title: String, _ detail: String?, @ViewBuilder control: () -> some View) -> some View {
         HStack(spacing: 20) {
             VStack(alignment: .leading, spacing: 3) {
-                Text(title).font(.system(size: 13.5, weight: .medium))
+                Text(title).font(.system(size: 13, weight: .medium))
                 if let detail { Text(detail).font(.system(size: 12)).foregroundStyle(Theme.muted) }
             }
             Spacer(minLength: 12)

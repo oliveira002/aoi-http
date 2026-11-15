@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-// Always in the toolbar, so the token can be refreshed from anywhere.
+// Always on the tab row, so the token can be refreshed from anywhere.
 struct GlobalsButton: View {
     @Environment(Store.self) private var store
     @State private var showing = false
@@ -16,9 +16,9 @@ struct GlobalsButton: View {
                     Circle().fill(state.color).frame(width: 7, height: 7)
                     Text(state.label).font(.system(size: 12.5)).monospacedDigit()
                 }
-                .padding(.horizontal, 4)
             }
         }
+        .buttonStyle(PillButtonStyle())
         .help("Globals: the token and other values every request uses")
         .popover(isPresented: $showing, arrowEdge: .bottom) {
             GlobalsPopover(close: { showing = false })
@@ -99,6 +99,7 @@ struct GlobalsPopover: View {
                 }
                 .buttonStyle(IconButtonStyle())
                 .help("Clear")
+                .accessibilityLabel("Clear value")
             }
         }
     }

@@ -19,7 +19,7 @@ struct KeyValueEditor: View {
                     Color.clear.frame(width: 28, height: 1)
                     Eyebrow("Key").frame(maxWidth: .infinity, alignment: .leading)
                     Eyebrow("Value").frame(maxWidth: .infinity, alignment: .leading)
-                    Color.clear.frame(width: 20, height: 1)
+                    Color.clear.frame(width: 22, height: 1)
                 }
                 ScrollView {
                     VStack(spacing: 6) {
@@ -40,10 +40,9 @@ struct KeyValueEditor: View {
                                 Button {
                                     rows.removeAll { $0.id == current.id }
                                 } label: {
-                                    Image(systemName: "xmark").font(.system(size: 11, weight: .semibold))
+                                    Image(systemName: "xmark").font(.system(size: 11, weight: .semibold)).hitTarget()
                                 }
                                 .buttonStyle(LinkButtonStyle())
-                                .frame(width: 20)
                                 .help("Remove")
                             }
                         }

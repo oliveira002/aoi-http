@@ -10,7 +10,7 @@ struct ResponseSummary: View {
                 HStack(spacing: 8) {
                     Circle().fill(Theme.status(response.statusCode)).frame(width: 8, height: 8)
                     Text("\(response.statusCode)")
-                    Text(HTTPURLResponse.localizedString(forStatusCode: response.statusCode).capitalized)
+                    Text(Format.reason(response.statusCode))
                         .font(.system(size: 13))
                         .foregroundStyle(Theme.muted)
                         .lineLimit(1)
@@ -28,7 +28,7 @@ struct ResponseSummary: View {
             value()
                 .font(.system(size: 20, weight: .semibold))
                 .monospacedDigit()
-            Text(label).font(.system(size: 11.5)).foregroundStyle(Theme.muted)
+            Text(label).font(.system(size: 11)).foregroundStyle(Theme.muted)
         }
         .padding(.trailing, 20)
     }
@@ -57,8 +57,36 @@ struct ResponseHeadersList: View {
                     .overlay(alignment: .bottom) { Hairline() }
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 18)
             .padding(.vertical, 6)
+        }
+    }
+}
+
+// The body as text, with ⌘F find that marks every match and scrolls to the current one.
+struct RawBodyView: View {
+    let text: String
+    let isJSON: Bool
+    @State private var query = ""
+    @State private var search = TextSearch()
+    @State private var scrollRequest = 0
+
+    var body: some View {
+        ScrollViewReader { proxy in
+            ScrollView([.vertical, .horizontal]) {
+                CodeText(text: text.isEmpty ? "(empty body)" : text, isJSON: isJSON, highlights: search.matches, current: search.currentMatch)
+                    .padding(18)
+            }
+            // A jump, not an animation: animating across a long body redraws all of it on every frame.
+            .onChange(of: scrollRequest) { proxy.scrollTo(CodeText.currentMatchID, anchor: .center) }
+        }
+        .findBar(query: $query, summary: search.summary, found: !search.matches.isEmpty) { offset in
+            search.step(offset)
+            scrollRequest += 1
+        }
+        .onChange(of: query) {
+            search = TextSearch(query, in: text)
+            scrollRequest += 1
         }
     }
 }

@@ -17,7 +17,9 @@ struct TabStrip: View {
             Button(action: store.newRequest) { Image(systemName: "plus") }
                 .buttonStyle(IconButtonStyle())
                 .help("New tab (⌘T)")
+                .accessibilityLabel("New tab")
             Spacer(minLength: 0)
+            GlobalsButton()
         }
     }
 }
@@ -36,11 +38,11 @@ struct TabChip: View {
                 .foregroundStyle(selected ? Theme.text : Theme.muted)
                 .lineLimit(1)
                 .truncationMode(.middle)
-            trailing.frame(width: 16, height: 16)
+            trailing.frame(width: 22, height: 22)
         }
         .padding(.leading, 6)
         .padding(.trailing, 4)
-        .padding(.vertical, 5)
+        .frame(height: Theme.controlHeight)
         .frame(maxWidth: 230)
         .background(selected ? Theme.card : hovering ? Theme.raised : .clear, in: .rect(cornerRadius: 9))
         .overlay(RoundedRectangle(cornerRadius: 9).strokeBorder(selected ? Theme.line : .clear))
@@ -63,11 +65,12 @@ struct TabChip: View {
     @ViewBuilder private var trailing: some View {
         if hovering || (selected && !tab.isSending && !store.isDirty(tab)) {
             Button { store.closeTab(tab.id) } label: {
-                Image(systemName: "xmark").font(.system(size: 9, weight: .bold))
+                Image(systemName: "xmark").font(.system(size: 9, weight: .bold)).hitTarget()
             }
             .buttonStyle(.plain)
             .foregroundStyle(Theme.faint)
             .help("Close tab (⌘W)")
+            .accessibilityLabel("Close tab")
         } else if tab.isSending {
             ProgressView().controlSize(.mini)
         } else if store.isDirty(tab) {

@@ -67,6 +67,19 @@ struct StoreGuardTests {
 
 @MainActor
 struct StoreWorkspaceTests {
+    @Test func newCollectionShowsTheCollectionsTab() {
+        // Arrange
+        let victim = makeStore()
+        victim.sidebarTab = .history
+
+        // Act
+        victim.newCollection()
+
+        // Assert
+        #expect(victim.sidebarTab == .collections)
+        #expect(victim.collections.count == 1)
+    }
+
     @Test func deletingACollectionWaitsForConfirmation() {
         // Arrange
         let victim = makeStore()

@@ -9,8 +9,11 @@ struct ContentView: View {
         NavigationSplitView {
             Sidebar()
                 .navigationSplitViewColumnWidth(min: 270, ideal: 300, max: 400)
+                // Its toggle is the only toolbar item; without it no grey toolbar shows, even in fullscreen.
+                .toolbar(removing: .sidebarToggle)
         } detail: {
             VStack(alignment: .leading, spacing: 14) {
+                PaletteSearchButton().frame(maxWidth: .infinity)
                 TabStrip()
                 switch store.detail {
                 case .request:
@@ -18,25 +21,24 @@ struct ContentView: View {
                         HeaderView()
                         URLBar()
                         UnresolvedBanner()
-                        RequestCard()
-                        ResponseCard()
+                        // The request card gives way first, so the response always keeps room to show something.
+                        RequestCard().layoutPriority(1)
+                        ResponseCard().frame(minHeight: 200)
                     }
                 case .variables(let scope):
                     VariablesEditor(scope: scope)
-                case .settings:
-                    SettingsPage()
                 }
             }
             .padding(.horizontal, 28)
-            .padding(.vertical, 22)
+            .padding(.top, 8)
+            .padding(.bottom, 22)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(Theme.bg)
         }
+        // While the palette or the production popup is open, keys and clicks go only to it.
+        .disabled(store.showingPalette || store.confirmingProduction)
         .tint(Theme.accent)
         .onAppear(perform: store.applyAppearance)
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) { GlobalsButton() }
-        }
         .fileImporter(isPresented: $store.showingImporter, allowedContentTypes: UTType.apiSpecs, allowsMultipleSelection: true) { result in
             if case .success(let urls) = result { store.importSpecs(urls) }
         }
@@ -76,8 +78,12 @@ struct ContentView: View {
         .overlay {
             if store.confirmingProduction { ProductionConfirm() }
         }
-        .overlay {
-            if store.showingPalette { CommandPalette() }
+        .overlayPreferenceValue(PaletteSearchButton.Bounds.self) { bounds in
+            if store.showingPalette {
+                GeometryReader { proxy in
+                    CommandPalette(bar: bounds.map { proxy[$0] } ?? CGRect(x: 0, y: 70, width: proxy.size.width, height: 0))
+                }
+            }
         }
         .alert("Import failed", isPresented: Binding(presenting: $store.importError)) {
             Button("OK") { store.importError = nil }

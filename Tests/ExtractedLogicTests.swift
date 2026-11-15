@@ -204,3 +204,85 @@ struct StoreSummaryTests {
         #expect(victim.breadcrumb == "Library  /  Books")
     }
 }
+
+struct TextSearchTests {
+    let body = "{\n  \"id\": \"needle\",\n  \"name\": \"Needle\"\n}"
+
+    @Test func blankQueryHasNoMatches() {
+        // Arrange / Act
+        let victim = TextSearch("  ", in: body)
+
+        // Assert
+        #expect(victim.matches.isEmpty)
+        #expect(victim.currentMatch == nil)
+    }
+
+    @Test func matchesIgnoreCase() {
+        // Arrange / Act
+        let victim = TextSearch("NEEDLE", in: body)
+
+        // Assert
+        #expect(victim.matches.map { String(body[$0]) } == ["needle", "Needle"])
+    }
+
+    @Test func stepMovesToTheNextMatch() {
+        // Arrange
+        var victim = TextSearch("needle", in: body)
+
+        // Act
+        victim.step(1)
+
+        // Assert
+        #expect(victim.currentMatch.map { String(body[$0]) } == "Needle")
+    }
+
+    @Test func stepWrapsAround() {
+        // Arrange
+        var victim = TextSearch("needle", in: body)
+
+        // Act
+        victim.step(-1)
+
+        // Assert
+        #expect(victim.current == 1)
+    }
+
+    @Test func stopsAtTheMatchLimit() {
+        // Arrange
+        let many = String(repeating: "a", count: TextSearch.matchLimit + 5)
+
+        // Act
+        let victim = TextSearch("a", in: many)
+
+        // Assert
+        #expect(victim.matches.count == TextSearch.matchLimit)
+    }
+}
+
+struct TextPositionTests {
+    @Test func countsLinesAndColumns() {
+        // Arrange
+        let text = "ab\ncd\nefg"
+        let index = text.firstIndex(of: "g")!
+
+        // Act
+        let result = text.position(of: index)
+
+        // Assert
+        #expect(result.line == 2)
+        #expect(result.column == 2)
+    }
+
+    @Test func countsWindowsLineBreaksOnce() {
+        // Arrange
+        let text = "ab\r\ncd"
+        let index = text.firstIndex(of: "d")!
+
+        // Act
+        let result = text.position(of: index)
+
+        // Assert
+        #expect(result.line == 1)
+        #expect(result.column == 1)
+    }
+}

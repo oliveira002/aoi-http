@@ -10,7 +10,11 @@ struct UnresolvedBanner: View {
                 Image(systemName: "exclamationmark.triangle.fill")
                 Text(missing.map { "{{\($0)}}" }.joined(separator: ", "))
                     .font(.system(size: 12.5, design: .monospaced))
-                Text("have no value yet")
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .help(missing.joined(separator: ", "))
+                Text(missing.count == 1 ? "has no value yet" : "have no value yet")
+                    .fixedSize()
                 Spacer()
                 if let environment = store.environmentDefining(missing) {
                     Button("Switch to \(environment.name)") { store.activeEnvironmentID = environment.id }

@@ -8,10 +8,16 @@ struct HeaderView: View {
             HStack(spacing: 12) {
                 Beacon(color: beaconColor, pulsing: store.isSending)
                 if let request = store.openRequest {
-                    // Hugs the name, so the Unsaved pill sits right next to it.
-                    TextField("Request name", text: Binding(get: { request.name }, set: store.renameOpenRequest))
-                        .textFieldStyle(.plain)
-                        .fixedSize()
+                    // A hidden copy of the name sets the width: it hugs short names, so the Unsaved pill sits
+                    // right next to them, and gives way on long ones instead of pushing the buttons out.
+                    Text(request.name.isEmpty ? "Request name" : request.name)
+                        .lineLimit(1)
+                        .padding(.trailing, 2)
+                        .hidden()
+                        .overlay {
+                            TextField("Request name", text: Binding(get: { request.name }, set: store.renameOpenRequest))
+                                .textFieldStyle(.plain)
+                        }
                         .help("Click to rename")
                 } else {
                     Text(store.headline)

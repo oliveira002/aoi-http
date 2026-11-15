@@ -44,8 +44,8 @@ struct ProductionConfirm: View {
             }
             .padding(24)
             .frame(width: 440)
-            .background(Theme.card, in: .rect(cornerRadius: 18))
-            .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(Theme.bad.opacity(0.35)))
+            .background(Theme.card, in: .rect(cornerRadius: Theme.cardRadius))
+            .overlay(RoundedRectangle(cornerRadius: Theme.cardRadius).strokeBorder(Theme.bad.opacity(0.35)))
             .shadow(color: .black.opacity(0.18), radius: 24, y: 8)
         }
         .transition(.opacity)

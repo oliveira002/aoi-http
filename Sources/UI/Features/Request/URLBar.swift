@@ -48,6 +48,7 @@ struct URLBar: View {
             .pillMenu()
             .disabled(store.draft.url.isEmpty)
             .help("Copy this request as a curl command. Paste a curl into the URL field to load one.")
+            .accessibilityLabel("Copy as cURL")
 
             Button(action: send) {
                 HStack(spacing: 6) {
@@ -61,9 +62,10 @@ struct URLBar: View {
                 .frame(minWidth: 64)
             }
             .buttonStyle(PillButtonStyle(primary: true))
-            // No keyboard shortcut and no send on Return, so a request only goes out on a deliberate click.
+            // ⌘Return, never plain Return, so typing in a field cannot send by accident.
+            .keyboardShortcut(.return, modifiers: .command)
             .disabled(store.isSending || store.draft.url.isEmpty)
-            .help(store.sendNeedsConfirmation ? "Send. Production: asks before sending" : "Send")
+            .help(store.sendNeedsConfirmation ? "Send (⌘Return). Production: asks before sending" : "Send (⌘Return)")
         }
         .padding(10)
     }

@@ -5,8 +5,8 @@ struct Card: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .background(Theme.card, in: .rect(cornerRadius: 16))
-            .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Theme.line))
+            .background(Theme.card, in: .rect(cornerRadius: Theme.cardRadius))
+            .overlay(RoundedRectangle(cornerRadius: Theme.cardRadius).strokeBorder(Theme.line))
             .shadow(color: .black.opacity(scheme == .dark ? 0 : 0.05), radius: 8, y: 2)
     }
 }
@@ -18,7 +18,7 @@ extension View {
         textFieldStyle(.plain)
             .font(font)
             .padding(.horizontal, 10)
-            .padding(.vertical, 7)
+            .frame(minHeight: Theme.controlHeight)
             .background(Theme.raised, in: .rect(cornerRadius: 9))
             .overlay(
                 RoundedRectangle(cornerRadius: 9)

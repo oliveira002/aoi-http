@@ -11,7 +11,7 @@ enum VariableScope: Hashable {
 }
 
 enum Detail: Hashable {
-    case request, variables(VariableScope), settings
+    case request, variables(VariableScope)
 }
 
 enum Deletion: Equatable {

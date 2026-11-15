@@ -46,7 +46,7 @@ struct ResponseCard: View {
                     selection: $tab
                 )
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 18)
             .padding(.vertical, 14)
             Hairline()
 
@@ -57,10 +57,8 @@ struct ResponseCard: View {
                     JSONTreeView(root: tree, expanded: $jsonExpanded)
                         .id(response.id)
                 } else {
-                    ScrollView([.vertical, .horizontal]) {
-                        CodeText(text: response.body.isEmpty ? "(empty body)" : response.body, isJSON: response.isJSON)
-                            .padding(18)
-                    }
+                    RawBodyView(text: response.body, isJSON: response.isJSON)
+                        .id(response.id)
                 }
             case .headers:
                 ResponseHeadersList(headers: response.headers)
@@ -81,7 +79,7 @@ struct ResponseCard: View {
             }
             Spacer()
             Text("Received \(response.receivedAt.formatted(.relative(presentation: .named)))")
-                .font(.system(size: 11.5))
+                .font(.system(size: 11))
                 .foregroundStyle(Theme.faint)
                 .help(response.receivedAt.formatted(date: .abbreviated, time: .standard))
             Button(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc") {

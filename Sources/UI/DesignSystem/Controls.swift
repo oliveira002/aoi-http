@@ -41,7 +41,7 @@ struct Segmented<T: Hashable>: View {
                         .font(.system(size: 12))
                         .foregroundStyle(selected ? Theme.text : Theme.muted)
                         .padding(.horizontal, 11)
-                        .padding(.vertical, 4)
+                        .frame(height: Theme.controlHeight - 4)
                         .background(selected ? Theme.card : .clear, in: .rect(cornerRadius: 8))
                         .shadow(color: .black.opacity(selected ? 0.08 : 0), radius: 1, y: 1)
                         .contentShape(Rectangle())
@@ -60,5 +60,22 @@ extension Segmented where T: CaseIterable, T: RawRepresentable, T.RawValue == St
     // One segment per case, labelled with its raw value.
     init(selection: Binding<T>) {
         self.init(options: T.allCases.map { ($0, $0.rawValue) }, selection: selection)
+    }
+}
+
+// A button that asks first, for actions that cannot be undone.
+struct ConfirmedButton: View {
+    let title: String
+    let question: String
+    let action: () -> Void
+    @State private var asking = false
+
+    var body: some View {
+        Button(title) { asking = true }
+            .confirmationDialog(question, isPresented: $asking) {
+                Button(title, role: .destructive, action: action)
+            } message: {
+                Text("This cannot be undone.")
+            }
     }
 }

@@ -156,3 +156,23 @@ struct TokenStateTests {
         #expect(short == text)
     }
 }
+
+struct FormatTests {
+    @Test(arguments: [(200, "OK"), (201, "Created"), (404, "Not Found")])
+    func reasonNamesTheStatus(code: Int, reason: String) {
+        // Arrange / Act
+        let result = Format.reason(code)
+
+        // Assert
+        #expect(result == reason)
+    }
+
+    @Test(arguments: [(0, "0 requests"), (1, "1 request"), (2, "2 requests")])
+    func countPluralizesTheNoun(count: Int, text: String) {
+        // Arrange / Act
+        let result = Format.count(count, "request")
+
+        // Assert
+        #expect(result == text)
+    }
+}

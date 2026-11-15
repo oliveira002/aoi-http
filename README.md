@@ -30,7 +30,7 @@ and stays on your Mac with no account or cloud sync.</p>
 - **Switch environments in one click.** Each environment has a base URL that every request uses as `{{baseUrl}}`, plus any variables it needs. Values missing for the active environment are highlighted before you send.
 - **Write bodies that match the API.** The JSON editor knows each endpoint's schema, so it suggests fields, types and allowed values as you type, at any depth, and flags required fields that are missing.
 - **Chain requests without copying.** Right-click any value in a response to keep it as a variable, such as `{{book_id}}`, for the next request. These values last until you quit.
-- **Stay safe on production.** Requests only go out when you click Send, and environments marked as production ask for confirmation first.
+- **Stay safe on production.** Requests only go out when you click Send or press ⌘Return, and environments marked as production ask before anything that changes data. Settings let you ask for every request, or never.
 - **Move fast.** Use tabs and history, jump anywhere with ⌘K, paste a curl command into the URL bar, or copy any request as one with its secrets hidden.
 
 ## Getting started

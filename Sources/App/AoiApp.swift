@@ -31,47 +31,16 @@ struct AoiApp: App {
         Window("Aoi", id: "main") {
             ContentView()
                 .environment(store)
+                .focusedSceneValue(\.workspace, store)
                 .frame(minWidth: 1000, minHeight: 660)
         }
-        .windowToolbarStyle(.unified(showsTitle: false))
-        .commands {
-            CommandGroup(replacing: .newItem) {
-                Button("New Tab") { store.newRequest() }
-                    .keyboardShortcut("t")
-                Button("New Request") { store.newRequest() }
-                    .keyboardShortcut("n")
-                Button("Import API Spec…") { store.showingImporter = true }
-                    .keyboardShortcut("o")
-                Button("Go to…") { store.togglePalette() }
-                    .keyboardShortcut("k")
-            }
-            CommandGroup(after: .newItem) {
-                Button("Close Tab") { store.closeTab(store.activeTabID) }
-                    .keyboardShortcut("w")
-                Button("Close Other Tabs") { store.closeOtherTabs(store.activeTabID) }
-                    .keyboardShortcut("w", modifiers: [.command, .option])
-                    .disabled(store.tabs.count < 2)
-                Button("Close All Tabs") { store.closeAllTabs() }
-                Button("Next Tab") { store.selectAdjacentTab(1) }
-                    .keyboardShortcut("]", modifiers: [.command, .shift])
-                Button("Previous Tab") { store.selectAdjacentTab(-1) }
-                    .keyboardShortcut("[", modifiers: [.command, .shift])
-            }
-            CommandGroup(after: .pasteboard) {
-                Button("Copy as cURL") { store.curlCommand(hidingSecrets: false).map(Pasteboard.copy) }
-                    .keyboardShortcut("c", modifiers: [.command, .option])
-                Button("Copy as cURL, Secrets Hidden") { store.curlCommand(hidingSecrets: true).map(Pasteboard.copy) }
-                    .keyboardShortcut("c", modifiers: [.command, .option, .shift])
-            }
-            CommandGroup(replacing: .saveItem) {
-                Button("Save Request") { store.saveOpenRequest() }
-                    .keyboardShortcut("s")
-                    .disabled(store.openRequest == nil)
-            }
-            CommandGroup(replacing: .appSettings) {
-                Button("Settings…") { store.detail = .settings }
-                    .keyboardShortcut(",")
-            }
+        .windowStyle(.hiddenTitleBar)
+        .commands { WorkspaceCommands() }
+
+        Settings {
+            SettingsPage()
+                .environment(store)
+                .tint(Theme.accent)
         }
     }
 }

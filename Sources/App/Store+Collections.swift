@@ -2,6 +2,12 @@ import Foundation
 
 // Collections, the requests saved in them, and importing specs.
 extension Store {
+    // ⌘N: a new collection, with the sidebar showing it.
+    func newCollection() {
+        sidebarTab = .collections
+        createCollection()
+    }
+
     @discardableResult
     func createCollection() -> UUID {
         let collection = APICollection(name: "New Collection")

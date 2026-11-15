@@ -11,9 +11,10 @@ struct Sidebar: View {
                 BrandMark(size: 26)
                 Text("Aoi").font(.system(size: 16, weight: .semibold)).tracking(-0.3)
                 Spacer()
-                Button { store.detail = .settings } label: { Image(systemName: "gearshape") }
+                SettingsLink { Image(systemName: "gearshape") }
                     .buttonStyle(IconButtonStyle())
                     .help("Settings (⌘,)")
+                    .accessibilityLabel("Settings")
             }
             TabBar(tabs: SidebarTab.allCases.map { ($0, $0.rawValue) }, selection: $store.sidebarTab, spacing: 16)
 
@@ -21,14 +22,14 @@ struct Sidebar: View {
                 Image(systemName: "magnifyingglass").foregroundStyle(Theme.faint)
                 TextField("Filter \(store.sidebarTab.rawValue.lowercased())", text: $search).textFieldStyle(.plain)
                 if !search.isEmpty {
-                    Button { search = "" } label: { Image(systemName: "xmark.circle.fill") }
+                    Button { search = "" } label: { Image(systemName: "xmark.circle.fill").hitTarget() }
                         .buttonStyle(.plain)
                         .foregroundStyle(Theme.faint)
                 }
             }
             .font(.system(size: 12.5))
             .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .frame(height: Theme.controlHeight)
             .background(Theme.raised, in: .rect(cornerRadius: 9))
             .overlay(RoundedRectangle(cornerRadius: 9).strokeBorder(Theme.line))
 
@@ -70,11 +71,14 @@ struct SidebarRow<Content: View>: View {
     var body: some View {
         HStack(spacing: 7) {
             content
-            if let onSettings, hovering {
+            if let onSettings {
                 Button(action: onSettings) { Image(systemName: "slider.horizontal.3") }
                     .buttonStyle(.plain)
                     .foregroundStyle(Theme.muted)
                     .help("Settings and variables")
+                    .opacity(hovering ? 1 : 0)
+                    .disabled(!hovering)
+                    .accessibilityHidden(!hovering)
             }
         }
         .font(.system(size: 13))

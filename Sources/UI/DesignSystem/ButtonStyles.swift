@@ -20,7 +20,7 @@ struct PillButtonStyle: ButtonStyle {
                 .font(.system(size: 13, weight: primary ? .semibold : .regular))
                 .foregroundStyle(primary ? Theme.card : Theme.text)
                 .padding(.horizontal, 14)
-                .padding(.vertical, 7)
+                .frame(minHeight: Theme.controlHeight)
                 .background(primary ? tint : Theme.card, in: Capsule())
                 .overlay(Capsule().strokeBorder(primary ? .clear : Theme.line))
                 .contentShape(Capsule())
@@ -43,7 +43,7 @@ struct IconButtonStyle: ButtonStyle {
         configuration.label
             .font(.system(size: 14))
             .foregroundStyle(configuration.isPressed ? Theme.text : Theme.muted)
-            .frame(width: 28, height: 28)
+            .frame(width: Theme.controlHeight, height: Theme.controlHeight)
             .background(configuration.isPressed ? Theme.raised : .clear, in: .rect(cornerRadius: 8))
             .contentShape(Rectangle())
     }

@@ -83,7 +83,7 @@ struct CollectionTree: View {
                 Text(collection.name).font(.system(size: 13, weight: .semibold)).lineLimit(1)
                 Spacer(minLength: 4)
                 Text("\(collection.requests.count)")
-                    .font(.system(size: 10.5, weight: .medium))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(Theme.muted)
                     .monospacedDigit()
                     .padding(.horizontal, 6)

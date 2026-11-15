@@ -35,7 +35,7 @@ struct EnvironmentsPanel: View {
                     }
                 }
                 Text("Click the circle to make an environment active.")
-                    .font(.system(size: 11.5))
+                    .font(.system(size: 11))
                     .foregroundStyle(Theme.faint)
                     .padding(.bottom, 10)
             }
@@ -73,6 +73,7 @@ struct EnvironmentsPanel: View {
             } label: {
                 Image(systemName: active ? "largecircle.fill.circle" : "circle")
                     .foregroundStyle(active ? Theme.accent : Theme.faint)
+                    .hitTarget()
             }
             .buttonStyle(.plain)
             .help(active ? "Active. Click to turn off." : "Make active")
@@ -82,8 +83,9 @@ struct EnvironmentsPanel: View {
                 store.toggleProduction(environment.id)
             } label: {
                 Image(systemName: environment.isProduction ? "shield.lefthalf.filled" : "shield")
-                    .font(.system(size: 11.5))
+                    .font(.system(size: 11))
                     .foregroundStyle(environment.isProduction ? Theme.bad : Theme.faint.opacity(0.6))
+                    .hitTarget()
             }
             .buttonStyle(.plain)
             .help(environment.isProduction ? "Production: asks before sending. Click to remove." : "Mark as production")

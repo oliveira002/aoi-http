@@ -8,7 +8,7 @@ enum Theme {
     static let raised = dynamic(0xfbfbfa, 0x222220)
     static let text = dynamic(0x1c1c1a, 0xedede9)
     static let muted = dynamic(0x75756f, 0x9b9b95)
-    static let faint = dynamic(0xa8a8a1, 0x6b6b66)
+    static let faint = dynamic(0x8a8a83, 0x85857f)
     static let line = dynamic(0xebebe6, 0x2a2a28)
     static let warn = dynamic(0xb0611f, 0xe7a46e)
     static let bad = dynamic(0xc0362c, 0xf08a80)
@@ -26,6 +26,9 @@ enum Theme {
         static let null = faint
     }
     static let mono = Font.system(size: 12.5, design: .monospaced)
+    // Buttons, fields, segmented controls and tabs share one height, so any of them line up in a row.
+    static let controlHeight: CGFloat = 30
+    static let cardRadius: CGFloat = 16
     // Ao: the blue-green of the sea, from teal down to the app's deep green.
     static let brandLight = Color(red: 0.22, green: 0.62, blue: 0.64)
     static let brandDark = Color(red: 0.12, green: 0.40, blue: 0.33)

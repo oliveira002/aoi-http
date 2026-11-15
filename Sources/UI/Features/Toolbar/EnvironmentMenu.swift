@@ -34,7 +34,6 @@ struct EnvironmentMenu: View {
                     Image(systemName: "shield.lefthalf.filled")
                         .font(.system(size: 11))
                         .foregroundStyle(Theme.bad)
-                        .help("Production: asks before sending")
                 } else {
                     Circle().fill(active == nil ? Theme.faint : Theme.accent).frame(width: 7, height: 7)
                 }

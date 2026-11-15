@@ -49,7 +49,7 @@ struct JSONRowView: View {
                         copied = false
                     }
                 } label: {
-                    Image(systemName: copied ? "checkmark" : "doc.on.doc").font(.system(size: 10.5))
+                    Image(systemName: copied ? "checkmark" : "doc.on.doc").font(.system(size: 11))
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(copied ? Theme.accent : Theme.faint)
@@ -75,7 +75,7 @@ struct JSONRowView: View {
             Button("Copy Path", action: actions.copyPath)
             if let variables = actions.variables {
                 Divider()
-                variableMenu(variables)
+                VariableMenu(variables: variables) { set($0, with: variables) }
             }
             if !node.isScalar {
                 Divider()
@@ -98,7 +98,7 @@ struct JSONRowView: View {
         if let label = row.label {
             if row.isIndex {
                 Text(label)
-                    .font(.system(size: 10.5, weight: .medium, design: .monospaced))
+                    .font(.system(size: 11, weight: .medium, design: .monospaced))
                     .foregroundStyle(Theme.muted)
                     .monospacedDigit()
                     .padding(.horizontal, 5)
@@ -112,9 +112,10 @@ struct JSONRowView: View {
 
     @ViewBuilder private var value: some View {
         if node.isScalar {
-            let text = Text(node.json)
+            let json = node.json
+            let text = Text(json)
                 .foregroundStyle(JSONTree.color(node))
-                .italic(node.json == "null")
+                .italic(json == "null")
             if let url = JSONTree.link(node) {
                 Link(destination: url) { text.underline() }
                     .help("Open \(url.absoluteString)")
@@ -140,27 +141,12 @@ struct JSONRowView: View {
             Text(isList ? "[ ]" : "{ }").foregroundStyle(Theme.faint)
             Text("\(node.count ?? 0)").foregroundStyle(Theme.muted).monospacedDigit()
         }
-        .font(.system(size: 10.5, weight: .medium, design: .monospaced))
+        .font(.system(size: 11, weight: .medium, design: .monospaced))
         .padding(.horizontal, 6)
         .padding(.vertical, 1)
         .background(Theme.raised, in: Capsule())
         .overlay(Capsule().strokeBorder(Theme.line))
         .help(isList ? "\(node.count ?? 0) items" : "\(node.count ?? 0) keys")
-    }
-
-    // One click keeps the value for this session; it is gone when the app quits.
-    @ViewBuilder private func variableMenu(_ variables: VariableActions) -> some View {
-        let suggestions = variables.suggestions()
-        ForEach(suggestions.fromKey, id: \.self) { name in
-            Button("Set {{\(name)}} for This Session") { set(name, with: variables) }
-        }
-        if !suggestions.inUse.isEmpty {
-            Menu("Set as Another Variable") {
-                ForEach(suggestions.inUse, id: \.self) { name in
-                    Button("{{\(name)}}") { set(name, with: variables) }
-                }
-            }
-        }
     }
 
     private func set(_ name: String, with variables: VariableActions) {
@@ -169,6 +155,28 @@ struct JSONRowView: View {
         Task {
             try? await Task.sleep(for: .seconds(1.6))
             setName = nil
+        }
+    }
+}
+
+// One click keeps the value for this session; it is gone when the app quits. A view of its own because
+// SwiftUI builds inline menu items with the row, and the suggestions scan every request in the collection:
+// as a separate view they are only worked out when the menu opens, which keeps scrolling smooth.
+private struct VariableMenu: View {
+    let variables: JSONRowView.VariableActions
+    let set: (String) -> Void
+
+    var body: some View {
+        let suggestions = variables.suggestions()
+        ForEach(suggestions.fromKey, id: \.self) { name in
+            Button("Set {{\(name)}} for This Session") { set(name) }
+        }
+        if !suggestions.inUse.isEmpty {
+            Menu("Set as Another Variable") {
+                ForEach(suggestions.inUse, id: \.self) { name in
+                    Button("{{\(name)}}") { set(name) }
+                }
+            }
         }
     }
 }
