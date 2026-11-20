@@ -26,7 +26,7 @@ cat > "$app/Contents/Info.plist" <<PLIST
 <dict>
     <key>CFBundleName</key><string>Aoi</string>
     <key>CFBundleDisplayName</key><string>Aoi</string>
-    <key>CFBundleIdentifier</key><string>local.aoi</string>
+    <key>CFBundleIdentifier</key><string>io.github.oliveira002.aoi</string>
     <key>CFBundleExecutable</key><string>Aoi</string>
     <key>CFBundleIconFile</key><string>Aoi</string>
     <key>CFBundlePackageType</key><string>APPL</string>
