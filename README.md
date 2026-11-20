@@ -55,6 +55,10 @@ swift test
 
 The tests use a stub HTTP client and a temporary folder, so they never make real requests or touch your data.
 
+## License
+
+[MIT](LICENSE)
+
 <br>
 
 <p align="center"><sub>Made by João Oliveira</sub></p>
