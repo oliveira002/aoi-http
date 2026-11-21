@@ -9,6 +9,7 @@ It imports your OpenAPI and Postman files, keeps requests, environments and resp
 and stays on your Mac with no account or cloud sync.</p>
 
 <p>
+  <a href="https://github.com/oliveira002/aoi-http/actions/workflows/ci.yml"><img src="https://github.com/oliveira002/aoi-http/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-111?logo=apple" alt="macOS 14+">
   <img src="https://img.shields.io/badge/Swift-5.10-F05138?logo=swift&logoColor=white" alt="Swift 5.10">
   <img src="https://img.shields.io/badge/Dependencies-none-3A9EA3" alt="No dependencies">
