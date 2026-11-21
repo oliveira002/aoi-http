@@ -5,14 +5,14 @@ struct HeaderView: View {
 
     var body: some View {
         PageHeader(eyebrow: store.breadcrumb, subtitle: store.statusLine) {
-            HStack(spacing: 12) {
-                Beacon(color: beaconColor, pulsing: store.isSending)
+            HStack(spacing: Theme.Space.m) {
+                Beacon(color: beaconColor)
                 if let request = store.openRequest {
-                    // A hidden copy of the name sets the width: it hugs short names, so the Unsaved pill sits
+                    // A hidden copy of the name sets the width: it hugs short names, so the Unsaved badge sits
                     // right next to them, and gives way on long ones instead of pushing the buttons out.
                     Text(request.name.isEmpty ? "Request name" : request.name)
                         .lineLimit(1)
-                        .padding(.trailing, 2)
+                        .padding(.trailing, Theme.Space.xs)
                         .hidden()
                         .overlay {
                             TextField("Request name", text: Binding(get: { request.name }, set: store.renameOpenRequest))
@@ -25,7 +25,7 @@ struct HeaderView: View {
                         .truncationMode(.middle)
                 }
                 if store.isDirty {
-                    Pill(text: "Unsaved", color: Theme.warn)
+                    Badge(text: "Unsaved", color: Theme.warn)
                 }
                 Spacer(minLength: 0)
             }
@@ -48,7 +48,7 @@ struct SaveButton: View {
     var body: some View {
         if store.openRequest != nil {
             Button("Save", systemImage: "checkmark") { store.saveOpenRequest() }
-                .buttonStyle(PillButtonStyle())
+                .buttonStyle(ControlButtonStyle())
                 .disabled(!store.isDirty)
                 .help("Save changes to the collection (⌘S)")
         } else {
@@ -61,7 +61,7 @@ struct SaveButton: View {
             } label: {
                 Label("Save to…", systemImage: "tray.and.arrow.down")
             }
-            .pillMenu()
+            .controlMenu()
             .help("Save this request into a collection")
         }
     }

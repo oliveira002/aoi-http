@@ -2,28 +2,27 @@ import SwiftUI
 
 // ⌘K: type to find a request, an environment or an action. Arrows move, Return runs, Esc closes.
 struct CommandPalette: View {
-    static let width: CGFloat = 560
+    static let width: CGFloat = 640
 
     @Environment(Store.self) private var store
-    @Environment(\.openSettings) private var openSettings
-    // Where the search bar sits, so the palette opens right on top of it.
-    let bar: CGRect
+    // From the window's top edge, so the palette opens right over the title bar search.
+    var top: CGFloat = 0
     @State private var query = ""
     @State private var selected = 0
     @FocusState private var focused: Bool
 
     var body: some View {
         let results = store.paletteResults(for: query)
-        ZStack(alignment: .topLeading) {
+        ZStack(alignment: .top) {
             Color.black.opacity(0.2)
                 .ignoresSafeArea()
                 .onTapGesture { store.showingPalette = false }
             VStack(spacing: 0) {
-                HStack(spacing: 10) {
+                HStack(spacing: Theme.Space.s) {
                     Image(systemName: "magnifyingglass").foregroundStyle(Theme.faint)
                     TextField("Go to a request, environment or action", text: $query)
                         .textFieldStyle(.plain)
-                        .font(.system(size: 16))
+                        .font(.title3)
                         .focused($focused)
                         .onKeyPress(.upArrow) { move(-1, in: results) }
                         .onKeyPress(.downArrow) { move(1, in: results) }
@@ -33,20 +32,20 @@ struct CommandPalette: View {
                             return .handled
                         }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 14)
+                .padding(.horizontal, Theme.Space.l)
+                .padding(.vertical, Theme.Space.m)
                 Hairline()
                 if results.isEmpty {
-                    EmptyState(message: "Nothing matches “\(query)”").padding(24)
+                    EmptyState(message: "Nothing matches “\(query)”").padding(Theme.Space.xl)
                 } else {
                     list(results)
                 }
             }
             .frame(width: Self.width)
-            .background(Theme.card, in: .rect(cornerRadius: Theme.cardRadius))
-            .overlay(RoundedRectangle(cornerRadius: Theme.cardRadius).strokeBorder(Theme.line))
+            .background(Theme.card, in: .rect(cornerRadius: Theme.Radius.container))
+            .overlay(RoundedRectangle(cornerRadius: Theme.Radius.container).strokeBorder(Theme.line))
             .shadow(color: .black.opacity(0.2), radius: 28, y: 10)
-            .offset(x: bar.midX - Self.width / 2, y: bar.minY)
+            .padding(.top, top)
         }
         .onAppear { focused = true }
         .onChange(of: query) { selected = 0 }
@@ -55,14 +54,14 @@ struct CommandPalette: View {
     private func list(_ results: [PaletteItem]) -> some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(spacing: 2) {
+                VStack(spacing: Theme.Space.xs) {
                     ForEach(Array(results.enumerated()), id: \.element.id) { index, item in
                         row(item, selected: index == selected)
                             .id(item.id)
-                            .onTapGesture { perform(item.action) }
+                            .onTapGesture { store.perform(item.action) }
                     }
                 }
-                .padding(6)
+                .padding(Theme.Space.s)
             }
             .frame(maxHeight: 380)
             .onChange(of: selected) {
@@ -73,28 +72,22 @@ struct CommandPalette: View {
     }
 
     private func row(_ item: PaletteItem, selected: Bool) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Theme.Space.s) {
             if let method = item.method {
                 MethodTag(method: method)
             } else {
                 Image(systemName: item.icon)
-                    .font(.system(size: 13))
+                    .font(.body)
                     .foregroundStyle(item.icon == "shield.lefthalf.filled" ? Theme.bad : Theme.muted)
                     .frame(width: 40)
             }
-            Text(item.title).font(.system(size: 13, weight: .medium)).lineLimit(1)
-            Spacer(minLength: 12)
-            Text(item.subtitle).font(.system(size: 12)).foregroundStyle(Theme.faint).lineLimit(1).truncationMode(.middle)
+            Text(item.title).font(.body.weight(.medium)).lineLimit(1)
+            Spacer(minLength: Theme.Space.m)
+            Text(item.subtitle).font(.callout).foregroundStyle(Theme.faint).lineLimit(1).truncationMode(.middle)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-        .background(selected ? Theme.accentSoft : .clear, in: .rect(cornerRadius: 8))
+        .padding(Theme.Space.s)
+        .background(selected ? Theme.accentSoft : .clear, in: .rect(cornerRadius: Theme.Radius.control))
         .contentShape(Rectangle())
-    }
-
-    private func perform(_ action: PaletteAction) {
-        if action == .settings { openSettings() }
-        store.perform(action)
     }
 
     private func move(_ offset: Int, in results: [PaletteItem]) -> KeyPress.Result {
@@ -105,37 +98,32 @@ struct CommandPalette: View {
 
     private func run(_ results: [PaletteItem]) -> KeyPress.Result {
         guard results.indices.contains(selected) else { return .handled }
-        perform(results[selected].action)
+        store.perform(results[selected].action)
         return .handled
     }
 }
 
-// Sits centered above the tabs and opens the palette, the same as ⌘K.
+// Sits centered in the title bar and opens the palette in the same place, the same as ⌘K.
 struct PaletteSearchButton: View {
-    struct Bounds: PreferenceKey {
-        static let defaultValue: Anchor<CGRect>? = nil
-        static func reduce(value: inout Anchor<CGRect>?, nextValue: () -> Anchor<CGRect>?) { value = value ?? nextValue() }
-    }
-
     @Environment(Store.self) private var store
 
     var body: some View {
         Button(action: store.togglePalette) {
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass").font(.system(size: 12))
-                Text("Search").font(.system(size: 12.5)).lineLimit(1)
-                Spacer(minLength: 8)
-                Text("⌘K").font(.system(size: 11, weight: .medium, design: .rounded))
+            HStack(spacing: Theme.Space.s) {
+                Image(systemName: "magnifyingglass").font(.callout)
+                Text("Search").font(.body).lineLimit(1)
+                Spacer(minLength: Theme.Space.s)
+                Text("⌘K").font(.system(.subheadline, design: .rounded, weight: .medium))
             }
             .foregroundStyle(Theme.muted)
-            .padding(.horizontal, 12)
+            .padding(.horizontal, Theme.Space.m)
             .frame(maxWidth: CommandPalette.width, minHeight: Theme.controlHeight, maxHeight: Theme.controlHeight)
-            .background(Theme.raised, in: .rect(cornerRadius: 9))
-            .overlay(RoundedRectangle(cornerRadius: 9).strokeBorder(Theme.line))
+            // A tint rather than Theme.raised, so it shows on the title bar band in both light and dark.
+            .background(Theme.text.opacity(0.06), in: .rect(cornerRadius: Theme.Radius.control))
+            .overlay(RoundedRectangle(cornerRadius: Theme.Radius.control).strokeBorder(Theme.text.opacity(0.08)))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .anchorPreference(key: Bounds.self, value: .bounds) { $0 }
         .help("Go to a request, environment or action (⌘K)")
     }
 }

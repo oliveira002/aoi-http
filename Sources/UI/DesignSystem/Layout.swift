@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 // A one-point divider in the line colour.
@@ -16,7 +17,7 @@ struct CountLabel: View {
     let count: Int
 
     var body: some View {
-        Text("\(count)").font(.system(size: 11)).foregroundStyle(Theme.faint).monospacedDigit()
+        Text("\(count)").font(.subheadline).foregroundStyle(Theme.faint).monospacedDigit()
     }
 }
 
@@ -29,15 +30,15 @@ struct EmptyState<Actions: View>: View {
     @ViewBuilder var actions: Actions
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: Theme.Space.s) {
             if let icon {
-                Image(systemName: icon).font(.system(size: 26)).foregroundStyle(tint)
+                Image(systemName: icon).font(.title).foregroundStyle(tint)
             }
             if let title {
-                Text(title).font(.system(size: 14, weight: .semibold))
+                Text(title).font(.title3.weight(.semibold))
             }
             Text(message)
-                .font(.system(size: 12.5))
+                .font(.callout)
                 .foregroundStyle(Theme.muted)
                 .multilineTextAlignment(.center)
             actions
@@ -59,15 +60,13 @@ struct PageHeader<Title: View, Actions: View>: View {
     @ViewBuilder var actions: Actions
 
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
+        HStack(alignment: .center, spacing: Theme.Space.m) {
+            VStack(alignment: .leading, spacing: Theme.Space.xs) {
                 Eyebrow(eyebrow)
-                title
-                    .font(.system(size: 24, weight: .semibold))
-                    .tracking(-0.4)
-                Text(subtitle).font(.system(size: 13)).foregroundStyle(Theme.muted)
+                title.font(.title.weight(.semibold))
+                Text(subtitle).font(.body).foregroundStyle(Theme.muted)
             }
-            Spacer(minLength: 24)
+            Spacer(minLength: Theme.Space.xl)
             actions.fixedSize()
         }
     }
@@ -79,23 +78,55 @@ extension View {
         frame(minWidth: 22, minHeight: 22).contentShape(Rectangle())
     }
 
-    // A menu that looks like a pill button, without the disclosure arrow.
-    func pillMenu() -> some View {
+    // The same click area grown only vertically, for glyphs that must line up with an edge beside them.
+    func edgeTarget() -> some View {
+        frame(minHeight: 22).contentShape(Rectangle())
+    }
+
+    // Shows a resize cursor while a drag handle is hovered or dragged: pushed once, popped once.
+    func resizeCursor(_ cursor: NSCursor, active: Bool) -> some View {
+        modifier(ResizeCursor(cursor: cursor, active: active))
+    }
+
+    // A menu that looks like a ControlButtonStyle button, without the disclosure arrow.
+    func controlMenu() -> some View {
         menuStyle(.button)
             .menuIndicator(.hidden)
-            .buttonStyle(PillButtonStyle())
+            .buttonStyle(ControlButtonStyle())
             .fixedSize()
     }
 
     // The raised panel an empty state sits on; dashed when something can be dropped on it.
     func raisedPanel(dashed: Bool = false) -> some View {
-        padding(20)
+        padding(Theme.Space.xl)
             .frame(maxWidth: .infinity)
-            .background(Theme.raised, in: .rect(cornerRadius: 12))
+            .background(Theme.raised, in: .rect(cornerRadius: Theme.Radius.container))
             .overlay {
                 if dashed {
-                    RoundedRectangle(cornerRadius: 12).strokeBorder(Theme.line, style: StrokeStyle(lineWidth: 1, dash: [5]))
+                    RoundedRectangle(cornerRadius: Theme.Radius.container).strokeBorder(Theme.line, style: StrokeStyle(lineWidth: 1, dash: [5]))
                 }
             }
+    }
+}
+
+private struct ResizeCursor: ViewModifier {
+    let cursor: NSCursor
+    let active: Bool
+    @State private var pushed = false
+
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: active, initial: true) { show(active) }
+            .onDisappear { show(false) }
+    }
+
+    private func show(_ wanted: Bool) {
+        if wanted, !pushed {
+            cursor.push()
+            pushed = true
+        } else if !wanted, pushed {
+            NSCursor.pop()
+            pushed = false
+        }
     }
 }

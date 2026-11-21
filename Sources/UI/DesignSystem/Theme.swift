@@ -12,6 +12,7 @@ enum Theme {
     static let line = dynamic(0xebebe6, 0x2a2a28)
     static let warn = dynamic(0xb0611f, 0xe7a46e)
     static let bad = dynamic(0xc0362c, 0xf08a80)
+    // The app's green, from the icon; it stays the same whatever accent the user picked in System Settings.
     static let accent = dynamic(0x2f7a55, 0x74c69b)
     static let accentSoft = dynamic(0xe6f2eb, 0x1e3227)
     static let ocean = dynamic(0x2468a8, 0x82b8ec)
@@ -25,10 +26,26 @@ enum Theme {
         static let boolean = purple
         static let null = faint
     }
-    static let mono = Font.system(size: 12.5, design: .monospaced)
-    // Buttons, fields, segmented controls and tabs share one height, so any of them line up in a row.
-    static let controlHeight: CGFloat = 30
-    static let cardRadius: CGFloat = 16
+    static let monoSize: CGFloat = 12
+    static let mono = Font.system(size: monoSize, design: .monospaced)
+    // Buttons, fields, segmented controls, tabs and sidebar rows share the macOS large control height.
+    static let controlHeight: CGFloat = 28
+
+    // A 4pt grid: every padding and stack spacing in the app is one of these.
+    enum Space {
+        static let xs: CGFloat = 4
+        static let s: CGFloat = 8
+        static let m: CGFloat = 12
+        static let l: CGFloat = 16
+        static let xl: CGFloat = 20
+        static let xxl: CGFloat = 32
+    }
+
+    enum Radius {
+        static let tag: CGFloat = 4
+        static let control: CGFloat = 6
+        static let container: CGFloat = 10
+    }
     // Ao: the blue-green of the sea, from teal down to the app's deep green.
     static let brandLight = Color(red: 0.22, green: 0.62, blue: 0.64)
     static let brandDark = Color(red: 0.12, green: 0.40, blue: 0.33)

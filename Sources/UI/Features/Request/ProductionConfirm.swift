@@ -9,43 +9,43 @@ struct ProductionConfirm: View {
             Color.black.opacity(0.28)
                 .ignoresSafeArea()
                 .onTapGesture { store.confirmingProduction = false }
-            VStack(spacing: 16) {
+            VStack(spacing: Theme.Space.l) {
                 Image(systemName: "exclamationmark.octagon.fill")
-                    .font(.system(size: 30))
+                    .font(.largeTitle)
                     .foregroundStyle(Theme.bad)
-                VStack(spacing: 6) {
-                    Text("Are you sure?").font(.system(size: 18, weight: .semibold))
+                VStack(spacing: Theme.Space.s) {
+                    Text("Are you sure?").font(.title2.weight(.semibold))
                     Text("This goes to \(store.activeEnvironment?.name ?? "production"), a production environment.")
-                        .font(.system(size: 13))
+                        .font(.body)
                         .foregroundStyle(Theme.muted)
                         .multilineTextAlignment(.center)
                 }
-                HStack(spacing: 10) {
+                HStack(spacing: Theme.Space.s) {
                     MethodTag(method: store.draft.method)
                     Text(store.resolvedURL)
-                        .font(.system(size: 12, design: .monospaced))
+                        .font(.callout.monospaced())
                         .foregroundStyle(Theme.text)
                         .lineLimit(2)
                         .truncationMode(.middle)
                         .textSelection(.enabled)
                     Spacer(minLength: 0)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
-                .background(Theme.raised, in: .rect(cornerRadius: 10))
-                .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Theme.line))
-                HStack(spacing: 10) {
+                .padding(.horizontal, Theme.Space.m)
+                .padding(.vertical, Theme.Space.s)
+                .background(Theme.raised, in: .rect(cornerRadius: Theme.Radius.container))
+                .overlay(RoundedRectangle(cornerRadius: Theme.Radius.container).strokeBorder(Theme.line))
+                HStack(spacing: Theme.Space.s) {
                     Button("Cancel") { store.confirmingProduction = false }
-                        .buttonStyle(PillButtonStyle())
+                        .buttonStyle(ControlButtonStyle())
                         .keyboardShortcut(.cancelAction)
                     Button("Send to production") { Task { await store.send() } }
-                        .buttonStyle(PillButtonStyle(primary: true, tint: Theme.bad))
+                        .buttonStyle(ControlButtonStyle(primary: true, tint: Theme.bad))
                 }
             }
-            .padding(24)
+            .padding(Theme.Space.xl)
             .frame(width: 440)
-            .background(Theme.card, in: .rect(cornerRadius: Theme.cardRadius))
-            .overlay(RoundedRectangle(cornerRadius: Theme.cardRadius).strokeBorder(Theme.bad.opacity(0.35)))
+            .background(Theme.card, in: .rect(cornerRadius: Theme.Radius.container))
+            .overlay(RoundedRectangle(cornerRadius: Theme.Radius.container).strokeBorder(Theme.bad.opacity(0.35)))
             .shadow(color: .black.opacity(0.18), radius: 24, y: 8)
         }
         .transition(.opacity)

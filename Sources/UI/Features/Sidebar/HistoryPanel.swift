@@ -5,26 +5,26 @@ struct HistoryPanel: View {
     let search: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Theme.Space.s) {
             if store.history.isEmpty {
                 EmptyState(message: "Requests you send show up here. Click one to load it back into the builder.")
                     .frame(maxWidth: .infinity)
-                    .padding(.top, 16)
+                    .padding(.top, Theme.Space.l)
                 Spacer()
             } else {
                 HStack {
-                    Text(Format.count(store.history.count, "request")).font(.system(size: 12)).foregroundStyle(Theme.faint)
+                    Text(Format.count(store.history.count, "request")).font(.callout).foregroundStyle(Theme.faint)
                     Spacer()
                     ConfirmedButton(title: "Clear", question: "Clear all history?") { store.history.removeAll() }
                         .buttonStyle(LinkButtonStyle())
                 }
                 ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 1) {
+                    LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(days, id: \.day) { group in
                             Eyebrow(HistoryEntry.dayTitle(group.day))
-                                .padding(.horizontal, 8)
-                                .padding(.top, 10)
-                                .padding(.bottom, 4)
+                                .padding(.horizontal, Theme.Space.s)
+                                .padding(.top, Theme.Space.m)
+                                .padding(.bottom, Theme.Space.xs)
                             ForEach(group.entries) { entry in
                                 HistoryRow(entry: entry, collection: store.collection(entry.collectionID)?.name)
                                     .contextMenu {
@@ -33,7 +33,7 @@ struct HistoryPanel: View {
                             }
                         }
                     }
-                    .padding(.bottom, 12)
+                    .padding(.bottom, Theme.Space.m)
                 }
             }
         }
@@ -52,25 +52,25 @@ struct HistoryRow: View {
     var body: some View {
         SidebarRow(selected: store.loadedHistoryID == entry.id, action: { store.load(entry) }) {
             MethodTag(method: entry.draft.method)
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: Theme.Space.xs) {
                 Text(entry.requestName ?? entry.draft.displayPath)
-                    .font(.system(size: 12.5, weight: .medium))
+                    .font(.callout.weight(.medium))
                     .lineLimit(1)
                     .truncationMode(.middle)
                 Text(entry.subtitle(collection: collection))
-                    .font(.system(size: 11))
+                    .font(.subheadline)
                     .foregroundStyle(Theme.faint)
                     .lineLimit(1)
                     .truncationMode(.middle)
             }
-            Spacer(minLength: 6)
-            VStack(alignment: .trailing, spacing: 2) {
+            Spacer(minLength: Theme.Space.s)
+            VStack(alignment: .trailing, spacing: Theme.Space.xs) {
                 Text(entry.statusCode.map(String.init) ?? "Failed")
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Theme.status(entry.statusCode))
                     .monospacedDigit()
                 Text(entry.date, format: .dateTime.hour().minute())
-                    .font(.system(size: 11))
+                    .font(.subheadline)
                     .foregroundStyle(Theme.faint)
                     .monospacedDigit()
             }

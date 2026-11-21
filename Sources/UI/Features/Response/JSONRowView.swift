@@ -16,7 +16,11 @@ struct JSONRowView: View {
         let set: (String) -> Void
     }
 
-    static let indent: CGFloat = 18
+    static let indent = Theme.Space.l
+    private static let inset = Theme.Space.s
+    private static let spacing = Theme.Space.s
+    private static let guideOffset = inset + Chevron.width / 2
+    static let textOffset = inset + Chevron.width + spacing
 
     let row: JSONTree.Row
     let node: Node
@@ -28,17 +32,17 @@ struct JSONRowView: View {
     @State private var setName: String?
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 7) {
+        HStack(alignment: .firstTextBaseline, spacing: Self.spacing) {
             if node.isScalar {
-                Color.clear.frame(width: 10, height: 1)
+                Color.clear.frame(width: Chevron.width, height: 1)
             } else {
                 Chevron(open: isOpen)
             }
             label
             value
-            Spacer(minLength: 8)
+            Spacer(minLength: Theme.Space.s)
             if let setName {
-                Text("{{\(setName)}} set").font(.system(size: 11)).foregroundStyle(Theme.accent)
+                Text("{{\(setName)}} set").font(.subheadline).foregroundStyle(Theme.accent)
             }
             if hovering {
                 Button {
@@ -49,7 +53,7 @@ struct JSONRowView: View {
                         copied = false
                     }
                 } label: {
-                    Image(systemName: copied ? "checkmark" : "doc.on.doc").font(.system(size: 11))
+                    Image(systemName: copied ? "checkmark" : "doc.on.doc").font(.subheadline)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(copied ? Theme.accent : Theme.faint)
@@ -57,14 +61,14 @@ struct JSONRowView: View {
             }
         }
         .font(Theme.mono)
-        .padding(.leading, CGFloat(row.depth) * Self.indent + 6)
-        .padding(.trailing, 8)
-        .padding(.vertical, 3)
-        .background(background, in: .rect(cornerRadius: 6))
+        .padding(.leading, CGFloat(row.depth) * Self.indent + Self.inset)
+        .padding(.trailing, Theme.Space.s)
+        .padding(.vertical, Theme.Space.xs / 2)
+        .background(background, in: .rect(cornerRadius: Theme.Radius.control))
         .background(alignment: .leading) {
             // Guides line up under each ancestor's chevron.
             ForEach(0..<row.depth, id: \.self) { level in
-                Hairline(axis: .vertical).padding(.leading, 11 + CGFloat(level) * Self.indent)
+                Hairline(axis: .vertical).padding(.leading, Self.guideOffset + CGFloat(level) * Self.indent)
             }
         }
         .contentShape(Rectangle())
@@ -98,12 +102,12 @@ struct JSONRowView: View {
         if let label = row.label {
             if row.isIndex {
                 Text(label)
-                    .font(.system(size: 11, weight: .medium, design: .monospaced))
+                    .font(.subheadline.monospaced().weight(.medium))
                     .foregroundStyle(Theme.muted)
                     .monospacedDigit()
-                    .padding(.horizontal, 5)
-                    .background(Theme.raised, in: .rect(cornerRadius: 4))
-                    .overlay(RoundedRectangle(cornerRadius: 4).strokeBorder(Theme.line))
+                    .padding(.horizontal, Theme.Space.s)
+                    .background(Theme.raised, in: .rect(cornerRadius: Theme.Radius.tag))
+                    .overlay(RoundedRectangle(cornerRadius: Theme.Radius.tag).strokeBorder(Theme.line))
             } else {
                 (Text(label).foregroundColor(Theme.JSONColors.key).fontWeight(.medium) + Text(":").foregroundColor(Theme.faint))
             }
@@ -125,7 +129,7 @@ struct JSONRowView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         } else {
-            HStack(spacing: 6) {
+            HStack(spacing: Theme.Space.s) {
                 badge
                 if !isOpen {
                     Text(JSONTree.preview(node)).foregroundStyle(Theme.muted).lineLimit(1).truncationMode(.tail)
@@ -137,15 +141,15 @@ struct JSONRowView: View {
     // "{} 3" or "[] 12", so the shape and size of a container read at a glance.
     private var badge: some View {
         let isList: Bool = { if case .list = node { return true }; return false }()
-        return HStack(spacing: 3) {
+        return HStack(spacing: Theme.Space.xs) {
             Text(isList ? "[ ]" : "{ }").foregroundStyle(Theme.faint)
             Text("\(node.count ?? 0)").foregroundStyle(Theme.muted).monospacedDigit()
         }
-        .font(.system(size: 11, weight: .medium, design: .monospaced))
-        .padding(.horizontal, 6)
-        .padding(.vertical, 1)
-        .background(Theme.raised, in: Capsule())
-        .overlay(Capsule().strokeBorder(Theme.line))
+        .font(.subheadline.monospaced().weight(.medium))
+        .padding(.horizontal, Theme.Space.s)
+        .padding(.vertical, Theme.Space.xs / 2)
+        .background(Theme.raised, in: .rect(cornerRadius: Theme.Radius.tag))
+        .overlay(RoundedRectangle(cornerRadius: Theme.Radius.tag).strokeBorder(Theme.line))
         .help(isList ? "\(node.count ?? 0) items" : "\(node.count ?? 0) keys")
     }
 

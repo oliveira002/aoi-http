@@ -8,7 +8,7 @@ struct URLBar: View {
             mainRow
             if !store.draft.pathVariables.isEmpty {
                 Hairline()
-                PathFields().padding(.horizontal, 12).padding(.vertical, 9)
+                PathFields().padding(.horizontal, Theme.Space.l).padding(.vertical, Theme.Space.s)
             }
         }
         .card()
@@ -16,26 +16,26 @@ struct URLBar: View {
 
     private var mainRow: some View {
         @Bindable var store = store
-        return HStack(spacing: 10) {
+        return HStack(spacing: Theme.Space.s) {
             Menu {
                 ForEach(HTTPMethod.allCases, id: \.self) { method in
                     Button(method.rawValue) { store.draft.method = method }
                 }
             } label: {
-                HStack(spacing: 6) {
+                HStack(spacing: Theme.Space.s) {
                     Text(store.draft.method.rawValue)
-                        .font(.system(size: 13, weight: .bold, design: .monospaced))
+                        .font(.headline.monospaced())
                         .foregroundStyle(Theme.method(store.draft.method))
-                    Image(systemName: "chevron.down").font(.system(size: 9, weight: .bold)).foregroundStyle(Theme.muted)
+                    Image(systemName: "chevron.down").font(.caption.weight(.bold)).foregroundStyle(Theme.muted)
                 }
                 .frame(width: 84)
             }
-            .pillMenu()
+            .controlMenu()
 
             VariableField(
                 title: "Enter a URL, for example {{baseUrl}}/books",
                 text: $store.draft.url,
-                font: .system(size: 14, design: .monospaced),
+                font: .title3.monospaced(),
                 onPaste: store.applyCurl
             )
 
@@ -45,13 +45,13 @@ struct URLBar: View {
             } label: {
                 Image(systemName: "terminal")
             }
-            .pillMenu()
+            .controlMenu()
             .disabled(store.draft.url.isEmpty)
             .help("Copy this request as a curl command. Paste a curl into the URL field to load one.")
             .accessibilityLabel("Copy as cURL")
 
             Button(action: send) {
-                HStack(spacing: 6) {
+                HStack(spacing: Theme.Space.s) {
                     if store.isSending {
                         ProgressView().controlSize(.small).tint(Theme.card)
                     } else {
@@ -61,13 +61,15 @@ struct URLBar: View {
                 }
                 .frame(minWidth: 64)
             }
-            .buttonStyle(PillButtonStyle(primary: true))
+            .buttonStyle(ControlButtonStyle(primary: true))
             // ⌘Return, never plain Return, so typing in a field cannot send by accident.
             .keyboardShortcut(.return, modifiers: .command)
             .disabled(store.isSending || store.draft.url.isEmpty)
             .help(store.sendNeedsConfirmation ? "Send (⌘Return). Production: asks before sending" : "Send (⌘Return)")
         }
-        .padding(10)
+        // Same side inset as the cards below, so the method lines up with their contents.
+        .padding(.horizontal, Theme.Space.l)
+        .padding(.vertical, Theme.Space.s)
     }
 
     private func send() {
@@ -81,15 +83,15 @@ struct PathFields: View {
     @Environment(Store.self) private var store
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: Theme.Space.l) {
             Eyebrow("Path")
             ForEach(store.draft.pathVariables, id: \.self) { name in
-                HStack(spacing: 7) {
+                HStack(spacing: Theme.Space.s) {
                     Text(name)
-                        .font(.system(size: 12, weight: .medium, design: .monospaced))
+                        .font(.callout.monospaced().weight(.medium))
                         .foregroundStyle(Theme.JSONColors.key)
                     TextField(store.variables[name] ?? "value", text: value(for: name))
-                        .themedField(highlighted: store.draft.pathValue(for: name).isEmpty && store.variables[name] == nil, font: .system(size: 12.5, design: .monospaced))
+                        .themedField(highlighted: store.draft.pathValue(for: name).isEmpty && store.variables[name] == nil, font: .callout.monospaced())
                         .frame(minWidth: 110, maxWidth: 240)
                         .help(store.variables[name].map { "Empty uses \($0) from your variables" } ?? "No value yet")
                 }

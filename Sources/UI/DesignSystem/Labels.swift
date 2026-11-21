@@ -5,46 +5,31 @@ struct Eyebrow: View {
     init(_ text: String) { self.text = text }
 
     var body: some View {
-        Text(text.uppercased())
-            .font(.system(size: 11, weight: .semibold))
-            .tracking(0.9)
-            .foregroundStyle(Theme.faint)
+        Text(text)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Theme.muted)
     }
 }
 
-struct Pill: View {
+struct Badge: View {
     let text: String
     let color: Color
 
     var body: some View {
         Text(text)
-            .font(.system(size: 11, weight: .medium))
+            .font(.subheadline.weight(.medium))
             .foregroundStyle(color)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 1)
-            .background(color.opacity(0.13), in: Capsule())
+            .padding(.horizontal, Theme.Space.s)
+            .padding(.vertical, Theme.Space.xs / 2)
+            .background(color.opacity(0.13), in: .rect(cornerRadius: Theme.Radius.tag))
     }
 }
 
 struct Beacon: View {
     let color: Color
-    var pulsing = false
 
     var body: some View {
-        Circle()
-            .fill(color)
-            .frame(width: 10, height: 10)
-            .background {
-                if pulsing {
-                    Circle()
-                        .fill(color.opacity(0.45))
-                        .phaseAnimator([false, true]) { circle, expanded in
-                            circle.scaleEffect(expanded ? 2.8 : 1).opacity(expanded ? 0 : 1)
-                        } animation: { expanded in
-                            expanded ? .easeOut(duration: 1.6) : nil
-                        }
-                }
-            }
+        Circle().fill(color).frame(width: 8, height: 8)
     }
 }
 
@@ -71,18 +56,19 @@ struct MethodTag: View {
             .font(.system(size: 9, weight: .bold, design: .monospaced))
             .foregroundStyle(Theme.method(method))
             .frame(width: 40, height: 17)
-            .background(Theme.method(method).opacity(0.12), in: .rect(cornerRadius: 5))
+            .background(Theme.method(method).opacity(0.12), in: .rect(cornerRadius: Theme.Radius.tag))
     }
 }
 
 struct Chevron: View {
+    static let width: CGFloat = 10
     let open: Bool
 
     var body: some View {
         Image(systemName: "chevron.right")
-            .font(.system(size: 9, weight: .bold))
+            .font(.caption.weight(.bold))
             .foregroundStyle(Theme.faint)
             .rotationEffect(.degrees(open ? 90 : 0))
-            .frame(width: 10)
+            .frame(width: Self.width)
     }
 }

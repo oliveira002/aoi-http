@@ -4,9 +4,9 @@ struct TabStrip: View {
     @Environment(Store.self) private var store
 
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: Theme.Space.xs) {
             ScrollView(.horizontal) {
-                HStack(spacing: 4) {
+                HStack(spacing: Theme.Space.xs) {
                     ForEach(store.tabs) { tab in
                         TabChip(tab: tab, selected: tab.id == store.activeTabID && store.detail == .request)
                     }
@@ -31,21 +31,28 @@ struct TabChip: View {
     @State private var hovering = false
 
     var body: some View {
-        HStack(spacing: 7) {
+        HStack(spacing: Theme.Space.s) {
             MethodTag(method: tab.draft.method)
+            // Sized by the medium-weight title, so selecting a tab never changes its width or squeezes the text.
             Text(store.title(of: tab))
-                .font(.system(size: 12.5, weight: selected ? .medium : .regular))
-                .foregroundStyle(selected ? Theme.text : Theme.muted)
+                .font(.callout.weight(.medium))
                 .lineLimit(1)
-                .truncationMode(.middle)
+                .hidden()
+                .overlay(alignment: .leading) {
+                    Text(store.title(of: tab))
+                        .font(.callout.weight(selected ? .medium : .regular))
+                        .foregroundStyle(selected ? Theme.text : Theme.muted)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
             trailing.frame(width: 22, height: 22)
         }
-        .padding(.leading, 6)
-        .padding(.trailing, 4)
+        .padding(.leading, Theme.Space.s)
+        .padding(.trailing, Theme.Space.xs)
         .frame(height: Theme.controlHeight)
         .frame(maxWidth: 230)
-        .background(selected ? Theme.card : hovering ? Theme.raised : .clear, in: .rect(cornerRadius: 9))
-        .overlay(RoundedRectangle(cornerRadius: 9).strokeBorder(selected ? Theme.line : .clear))
+        .background(selected ? Theme.card : hovering ? Theme.raised : .clear, in: .rect(cornerRadius: Theme.Radius.control))
+        .overlay(RoundedRectangle(cornerRadius: Theme.Radius.control).strokeBorder(selected ? Theme.line : .clear))
         .contentShape(Rectangle())
         .onTapGesture { store.selectTab(tab.id) }
         .onHover { hovering = $0 }
@@ -65,7 +72,7 @@ struct TabChip: View {
     @ViewBuilder private var trailing: some View {
         if hovering || (selected && !tab.isSending && !store.isDirty(tab)) {
             Button { store.closeTab(tab.id) } label: {
-                Image(systemName: "xmark").font(.system(size: 9, weight: .bold)).hitTarget()
+                Image(systemName: "xmark").font(.caption.weight(.bold)).hitTarget()
             }
             .buttonStyle(.plain)
             .foregroundStyle(Theme.faint)

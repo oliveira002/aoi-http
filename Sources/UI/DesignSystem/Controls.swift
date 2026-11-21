@@ -4,7 +4,7 @@ struct TabBar<T: Hashable>: View {
     let tabs: [(T, String)]
     @Binding var selection: T
     var underline = Theme.accent
-    var spacing: CGFloat = 22
+    var spacing: CGFloat = Theme.Space.xl
 
     var body: some View {
         HStack(spacing: spacing) {
@@ -12,9 +12,9 @@ struct TabBar<T: Hashable>: View {
                 let selected = selection == tab.0
                 Button { selection = tab.0 } label: {
                     Text(tab.1)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.body.weight(.medium))
                         .foregroundStyle(selected ? Theme.text : Theme.muted)
-                        .padding(.vertical, 9)
+                        .padding(.vertical, Theme.Space.s)
                         .overlay(alignment: .bottom) {
                             Rectangle().fill(selected ? underline : .clear).frame(height: 2)
                         }
@@ -29,6 +29,8 @@ struct TabBar<T: Hashable>: View {
 }
 
 struct Segmented<T: Hashable>: View {
+    // The gap between the track and the selected segment; the segment's radius shrinks by it so the corners nest.
+    static var inset: CGFloat { 2 }
     let options: [(T, String)]
     @Binding var selection: T
 
@@ -38,20 +40,20 @@ struct Segmented<T: Hashable>: View {
                 let selected = selection == option.0
                 Button { selection = option.0 } label: {
                     Text(option.1)
-                        .font(.system(size: 12))
+                        .font(.callout)
                         .foregroundStyle(selected ? Theme.text : Theme.muted)
-                        .padding(.horizontal, 11)
-                        .frame(height: Theme.controlHeight - 4)
-                        .background(selected ? Theme.card : .clear, in: .rect(cornerRadius: 8))
+                        .padding(.horizontal, Theme.Space.m)
+                        .frame(height: Theme.controlHeight - 2 * Segmented.inset)
+                        .background(selected ? Theme.card : .clear, in: .rect(cornerRadius: Theme.Radius.control - Segmented.inset))
                         .shadow(color: .black.opacity(selected ? 0.08 : 0), radius: 1, y: 1)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(2)
-        .background(Theme.raised, in: .rect(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Theme.line))
+        .padding(Segmented.inset)
+        .background(Theme.raised, in: .rect(cornerRadius: Theme.Radius.control))
+        .overlay(RoundedRectangle(cornerRadius: Theme.Radius.control).strokeBorder(Theme.line))
         .fixedSize()
     }
 }

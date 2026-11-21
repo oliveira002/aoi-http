@@ -1,4 +1,3 @@
-import AppKit
 import SwiftUI
 
 
@@ -10,13 +9,12 @@ struct RequestCard: View {
     @State private var renderedHeight: CGFloat = 280
     @State private var dragStart: CGFloat?
     @State private var hoveringHandle = false
-    @State private var cursorPushed = false
 
     var body: some View {
         @Bindable var store = store
         VStack(alignment: .leading, spacing: 0) {
             TabBar(tabs: RequestSection.allCases.map { ($0, store.draft.title(for: $0)) }, selection: $tab)
-                .padding(.horizontal, 18)
+                .padding(.horizontal, Theme.Space.l)
             Group {
                 switch tab {
                 case .params:
@@ -29,7 +27,7 @@ struct RequestCard: View {
                     AuthEditor(auth: $store.draft.auth)
                 }
             }
-            .padding(18)
+            .padding(Theme.Space.l)
         }
         .frame(minHeight: 180, maxHeight: height)
         .background {
@@ -49,14 +47,10 @@ struct RequestCard: View {
             .frame(maxWidth: .infinity, minHeight: 14)
             .contentShape(Rectangle())
             .offset(y: 10)
-            .onHover { inside in
-                hoveringHandle = inside
-                updateCursor()
-            }
+            .onHover { hoveringHandle = $0 }
             .onDisappear {
                 hoveringHandle = false
                 dragStart = nil
-                updateCursor()
             }
             .gesture(
                 // Global, because the handle itself moves as the card grows.
@@ -65,26 +59,11 @@ struct RequestCard: View {
                         let start = dragStart ?? renderedHeight
                         dragStart = start
                         height = min(max(start + value.translation.height, 180), 640)
-                        updateCursor()
                     }
-                    .onEnded { _ in
-                        dragStart = nil
-                        updateCursor()
-                    }
+                    .onEnded { _ in dragStart = nil }
             )
+            .resizeCursor(.resizeUpDown, active: hoveringHandle || dragStart != nil)
             .help("Drag to resize")
-    }
-
-    // Exactly one push while hovering or dragging, and its pop once neither is true.
-    private func updateCursor() {
-        let wanted = hoveringHandle || dragStart != nil
-        if wanted, !cursorPushed {
-            NSCursor.resizeUpDown.push()
-            cursorPushed = true
-        } else if !wanted, cursorPushed {
-            NSCursor.pop()
-            cursorPushed = false
-        }
     }
 
 }

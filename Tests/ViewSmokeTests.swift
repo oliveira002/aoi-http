@@ -42,7 +42,7 @@ struct ViewSmokeTests {
         #expect(victim.sidebarTab == tab)
     }
 
-    @Test(arguments: [Detail.request, .variables(.globals)])
+    @Test(arguments: [Detail.request, .variables(.globals), .settings])
     func everyPageDraws(detail: Detail) {
         // Arrange
         let victim = populatedStore()
@@ -93,18 +93,6 @@ struct ViewSmokeTests {
 
         // Assert
         #expect(victim.showingPalette)
-    }
-
-    @Test func theSettingsWindowDraws() {
-        // Arrange
-        let victim = populatedStore()
-        let host = NSHostingView(rootView: SettingsPage().environment(victim))
-
-        // Act
-        host.layoutSubtreeIfNeeded()
-
-        // Assert
-        #expect(host.fittingSize.width == 680)
     }
 
     @Test func aRawBodyDraws() {

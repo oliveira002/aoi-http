@@ -6,8 +6,8 @@ struct CollectionsPanel: View {
     @State private var dropTargeted = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 14) {
+        VStack(alignment: .leading, spacing: Theme.Space.s) {
+            HStack(spacing: Theme.Space.m) {
                 Button("Import", systemImage: "square.and.arrow.down") { store.showingImporter = true }
                     .help("Import an OpenAPI, Swagger or Postman file (⌘O)")
                 Button("New", systemImage: "plus") { store.createCollection() }
@@ -21,12 +21,12 @@ struct CollectionsPanel: View {
                 Spacer()
             } else {
                 ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 1) {
+                    LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(store.collections) { collection in
-                            CollectionTree(collection: collection, search: search).padding(.bottom, 6)
+                            CollectionTree(collection: collection, search: search).padding(.bottom, Theme.Space.s)
                         }
                     }
-                    .padding(.bottom, 12)
+                    .padding(.bottom, Theme.Space.m)
                 }
             }
         }
@@ -36,9 +36,10 @@ struct CollectionsPanel: View {
         } isTargeted: { dropTargeted = $0 }
         .overlay {
             if dropTargeted {
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: Theme.Radius.container)
                     .strokeBorder(Theme.accent, style: StrokeStyle(lineWidth: 1.5, dash: [5]))
-                    .background(Theme.accentSoft.opacity(0.85), in: .rect(cornerRadius: 12))
+                    .background(Theme.accentSoft, in: .rect(cornerRadius: Theme.Radius.container))
+                    .background(Theme.card, in: .rect(cornerRadius: Theme.Radius.container))
                     .overlay { Label("Drop to import", systemImage: "square.and.arrow.down").foregroundStyle(Theme.accent) }
             }
         }
@@ -55,7 +56,7 @@ struct ImportDropZone: View {
             message: "OpenAPI 3, Swagger 2 or a Postman collection or environment, as YAML or JSON. You can also drop the file here."
         ) {
             Button("Choose File…") { store.showingImporter = true }
-                .buttonStyle(PillButtonStyle(primary: true))
+                .buttonStyle(ControlButtonStyle(primary: true))
             Button("or start an empty collection") { store.createCollection() }
                 .buttonStyle(LinkButtonStyle())
         }
@@ -79,16 +80,10 @@ struct CollectionTree: View {
                 onSettings: { store.showVariables(.collection(collection.id)) }
             ) {
                 Chevron(open: open)
-                Image(systemName: "square.stack.3d.up.fill").foregroundStyle(Theme.accent).font(.system(size: 12))
-                Text(collection.name).font(.system(size: 13, weight: .semibold)).lineLimit(1)
-                Spacer(minLength: 4)
-                Text("\(collection.requests.count)")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Theme.muted)
-                    .monospacedDigit()
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 1)
-                    .background(Theme.raised, in: Capsule())
+                Image(systemName: "square.stack.3d.up.fill").foregroundStyle(Theme.accent).font(.callout)
+                Text(collection.name).font(.headline).lineLimit(1)
+                Spacer(minLength: Theme.Space.xs)
+                CountLabel(count: collection.requests.count)
             }
             .contextMenu {
                 Button("Settings and Variables") { store.showVariables(.collection(collection.id)) }
@@ -100,10 +95,10 @@ struct CollectionTree: View {
             if open {
                 if collection.requests.isEmpty {
                     Text("Empty. Use Save to… on a request to add it here.")
-                        .font(.system(size: 12))
+                        .font(.callout)
                         .foregroundStyle(Theme.muted)
-                        .padding(.leading, 36)
-                        .padding(.vertical, 4)
+                        .padding(.leading, SidebarIndent.leading(1) + Chevron.width + Theme.Space.s)
+                        .padding(.vertical, Theme.Space.xs)
                 }
                 ForEach(groups, id: \.name) { group in
                     if let folder = group.name {
@@ -111,9 +106,9 @@ struct CollectionTree: View {
                         let folderOpen = store.expanded.contains(folderKey) || !search.isEmpty
                         SidebarRow(indent: 1, action: { toggle(folderKey) }) {
                             Chevron(open: folderOpen)
-                            Image(systemName: folderOpen ? "folder" : "folder.fill").foregroundStyle(Theme.faint).font(.system(size: 11))
-                            Text(folder).font(.system(size: 12.5, weight: .medium)).lineLimit(1)
-                            Spacer(minLength: 4)
+                            Image(systemName: folderOpen ? "folder" : "folder.fill").foregroundStyle(Theme.faint).font(.subheadline)
+                            Text(folder).font(.callout.weight(.medium)).lineLimit(1)
+                            Spacer(minLength: Theme.Space.xs)
                             CountLabel(count: group.requests.count)
                         }
                         if folderOpen {
@@ -133,10 +128,10 @@ struct CollectionTree: View {
             indent: indent,
             action: { store.open(request, in: collection.id) }
         ) {
-            Color.clear.frame(width: 10, height: 1)
+            Color.clear.frame(width: Chevron.width, height: 1)
             MethodTag(method: request.draft.method)
-            Text(request.name).font(.system(size: 12.5)).lineLimit(1).truncationMode(.tail)
-            Spacer(minLength: 4)
+            Text(request.name).font(.callout).lineLimit(1).truncationMode(.tail)
+            Spacer(minLength: Theme.Space.xs)
             if let last = store.lastEntry(for: request.id) {
                 Circle()
                     .fill(Theme.status(last.statusCode))

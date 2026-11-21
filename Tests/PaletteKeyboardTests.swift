@@ -9,7 +9,7 @@ struct PaletteKeyboardTests {
     func window(for store: Store) -> NSWindow {
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 900, height: 600), styleMask: [.titled], backing: .buffered, defer: false)
         window.isReleasedWhenClosed = false
-        window.contentView = NSHostingView(rootView: CommandPalette(bar: CGRect(x: 0, y: 70, width: 800, height: 0)).environment(store))
+        window.contentView = NSHostingView(rootView: CommandPalette().environment(store))
         // Off-screen, so running the tests does not flash windows on the desktop.
         window.setFrameOrigin(NSPoint(x: -20_000, y: -20_000))
         window.makeKeyAndOrderFront(nil)

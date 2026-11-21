@@ -36,12 +36,7 @@ struct AoiApp: App {
                 .frame(minWidth: 1000, minHeight: 700)
         }
         .windowStyle(.hiddenTitleBar)
+        .windowToolbarStyle(.unified(showsTitle: false))
         .commands { WorkspaceCommands() }
-
-        Settings {
-            SettingsPage()
-                .environment(store)
-                .tint(Theme.accent)
-        }
     }
 }

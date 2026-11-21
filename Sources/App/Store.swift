@@ -56,6 +56,7 @@ final class Store {
     var expanded: Set<String> = []
     var showingImporter = false
     var showingPalette = false
+    var sidebarCollapsed = false
     var importError: String?
     // Set by Send on a production environment; shows the confirmation popup.
     var confirmingProduction = false

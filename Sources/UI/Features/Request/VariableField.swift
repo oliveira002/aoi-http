@@ -5,7 +5,7 @@ struct VariableField: View {
     let title: String
     @Binding var text: String
     var highlightsVariables = true
-    var font: Font = .system(size: 13)
+    var font: Font = .body
     // Gets pasted text first; returning true means it was handled, so the field keeps its text.
     var onPaste: ((String) -> Bool)?
 

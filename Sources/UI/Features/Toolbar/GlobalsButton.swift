@@ -11,14 +11,14 @@ struct GlobalsButton: View {
             TimelineView(.periodic(from: .now, by: 30)) { context in
                 // The token requests actually use, after collection and environment overrides.
                 let state = TokenState(token: store.variables["token"] ?? "", now: context.date)
-                HStack(spacing: 6) {
-                    Image(systemName: "key.fill").font(.system(size: 11))
+                HStack(spacing: Theme.Space.s) {
+                    Image(systemName: "key.fill").font(.subheadline)
                     Circle().fill(state.color).frame(width: 7, height: 7)
-                    Text(state.label).font(.system(size: 12.5)).monospacedDigit()
+                    Text(state.label).font(.callout).monospacedDigit()
                 }
             }
         }
-        .buttonStyle(PillButtonStyle())
+        .buttonStyle(ControlButtonStyle())
         .help("Globals: the token and other values every request uses")
         .popover(isPresented: $showing, arrowEdge: .bottom) {
             GlobalsPopover(close: { showing = false })
@@ -42,15 +42,15 @@ struct GlobalsPopover: View {
 
     var body: some View {
         @Bindable var store = store
-        VStack(alignment: .leading, spacing: 14) {
-            VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: Theme.Space.m) {
+            VStack(alignment: .leading, spacing: Theme.Space.xs) {
                 Eyebrow("Globals")
                 Text("Every request uses these. Paste a new token whenever it expires.")
-                    .font(.system(size: 12))
+                    .font(.callout)
                     .foregroundStyle(Theme.muted)
             }
             if store.globals.isEmpty {
-                Text("No globals yet.").font(.system(size: 12.5)).foregroundStyle(Theme.muted)
+                Text("No globals yet.").font(.callout).foregroundStyle(Theme.muted)
             }
             ForEach(store.globals) { row in
                 globalRow($store.globals.element(row))
@@ -66,31 +66,31 @@ struct GlobalsPopover: View {
                 .buttonStyle(LinkButtonStyle())
             }
         }
-        .padding(16)
+        .padding(Theme.Space.l)
         .frame(width: 420)
         .background(Theme.bg)
     }
 
     private func globalRow(_ row: Binding<KeyValue>) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: Theme.Space.s) {
+            HStack(spacing: Theme.Space.s) {
                 TextField("name", text: row.key)
                     .textFieldStyle(.plain)
-                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(Theme.accent)
+                    .font(.callout.monospaced().weight(.semibold))
+                    .foregroundStyle(Theme.JSONColors.key)
                 Spacer()
                 if let expiry = JWT.expiry(of: row.wrappedValue.value) {
                     let state = TokenState(expiry: expiry, now: .now)
-                    Pill(text: state == .expired ? "expired" : "expires \(expiry.formatted(.relative(presentation: .named)))", color: state.color)
+                    Badge(text: state == .expired ? "expired" : "expires \(expiry.formatted(.relative(presentation: .named)))", color: state.color)
                         .help(expiry.formatted(date: .abbreviated, time: .standard))
                 }
             }
-            HStack(spacing: 8) {
-                VariableField(title: "value", text: row.value, highlightsVariables: false, font: .system(size: 12, design: .monospaced))
+            HStack(spacing: Theme.Space.s) {
+                VariableField(title: "value", text: row.value, highlightsVariables: false, font: Theme.mono)
                 Button("Paste") {
                     if let text = NSPasteboard.general.string(forType: .string) { row.wrappedValue.value = text.pastedSecret }
                 }
-                .buttonStyle(PillButtonStyle(primary: true))
+                .buttonStyle(ControlButtonStyle(primary: true))
                 .help("Replace with the clipboard, trimmed and without \"Bearer \"")
                 Button {
                     row.wrappedValue.value = ""

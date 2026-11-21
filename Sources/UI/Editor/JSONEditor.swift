@@ -6,8 +6,8 @@ struct JSONEditor: NSViewRepresentable {
     @Binding var text: String
     var schema: BodySchema?
 
-    static let font = NSFont.monospacedSystemFont(ofSize: 12.5, weight: .regular)
-    static let variableFont = NSFont.monospacedSystemFont(ofSize: 12.5, weight: .semibold)
+    static let font = NSFont.monospacedSystemFont(ofSize: Theme.monoSize, weight: .regular)
+    static let variableFont = NSFont.monospacedSystemFont(ofSize: Theme.monoSize, weight: .semibold)
 
     func makeCoordinator() -> Coordinator { Coordinator(text: $text) }
 

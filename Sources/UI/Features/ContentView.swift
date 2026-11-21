@@ -3,21 +3,27 @@ import UniformTypeIdentifiers
 
 struct ContentView: View {
     @Environment(Store.self) private var store
+    @State private var sidebarWidth = Sidebar.defaultWidth
+    @FocusState private var windowFocused: Bool
 
     var body: some View {
         @Bindable var store = store
-        NavigationSplitView {
-            Sidebar()
-                .navigationSplitViewColumnWidth(min: 270, ideal: 300, max: 400)
-                // Its toggle is the only toolbar item; without it no grey toolbar shows, even in fullscreen.
-                .toolbar(removing: .sidebarToggle)
-        } detail: {
-            VStack(alignment: .leading, spacing: 14) {
-                PaletteSearchButton().frame(maxWidth: .infinity)
-                TabStrip()
+        // The sidebar never goes away: collapsed, it narrows to a strip of icons.
+        HStack(spacing: 0) {
+            Sidebar(width: sidebarWidth)
+                .frame(width: store.sidebarCollapsed ? Sidebar.railWidth : sidebarWidth, alignment: .leading)
+                .clipped()
+            // Above the main panel, so both halves of its drag area catch the pointer.
+            SidebarDivider(width: $sidebarWidth, resizable: !store.sidebarCollapsed)
+                .zIndex(1)
+            VStack(alignment: .leading, spacing: Theme.Space.l) {
+                // Settings is about the app, not a request, so it shows without the tabs.
+                if store.detail != .settings {
+                    TabStrip()
+                }
                 switch store.detail {
                 case .request:
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: Theme.Space.l) {
                         HeaderView()
                         URLBar()
                         UnresolvedBanner()
@@ -27,14 +33,23 @@ struct ContentView: View {
                     }
                 case .variables(let scope):
                     VariablesEditor(scope: scope)
+                case .settings:
+                    SettingsPage()
                 }
             }
-            .padding(.horizontal, 28)
-            .padding(.top, 8)
-            .padding(.bottom, 22)
+            .padding(.horizontal, Theme.Space.xl)
+            .padding(.top, Theme.Space.l)
+            .padding(.bottom, Theme.Space.xl)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(Theme.bg)
         }
+        .animation(.smooth(duration: 0.25), value: store.sidebarCollapsed)
+        .titleBarHeight()
+        // Starts focus on the window, not its first text field (the request name), so typing never renames.
+        .focusable()
+        .focusEffectDisabled()
+        .focused($windowFocused)
+        .defaultFocus($windowFocused, true)
         // While the palette or the production popup is open, keys and clicks go only to it.
         .disabled(store.showingPalette || store.confirmingProduction)
         .tint(Theme.accent)
@@ -78,10 +93,11 @@ struct ContentView: View {
         .overlay {
             if store.confirmingProduction { ProductionConfirm() }
         }
-        .overlayPreferenceValue(PaletteSearchButton.Bounds.self) { bounds in
+        .overlay(alignment: .top) { TitleBar() }
+        .overlay {
             if store.showingPalette {
                 GeometryReader { proxy in
-                    CommandPalette(bar: bounds.map { proxy[$0] } ?? CGRect(x: 0, y: 70, width: proxy.size.width, height: 0))
+                    CommandPalette(top: (proxy.safeAreaInsets.top - Theme.controlHeight) / 2).ignoresSafeArea()
                 }
             }
         }

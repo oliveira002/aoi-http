@@ -10,22 +10,22 @@ struct KeyValueEditor: View {
         if rows.isEmpty {
             EmptyState(message: hint.isEmpty ? "Nothing here yet" : hint) {
                 Button("Add \(noun)", systemImage: "plus") { rows.append(KeyValue()) }
-                    .buttonStyle(PillButtonStyle())
+                    .buttonStyle(ControlButtonStyle())
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: Theme.Space.s) {
+                HStack(spacing: Theme.Space.s) {
                     Color.clear.frame(width: 28, height: 1)
                     Eyebrow("Key").frame(maxWidth: .infinity, alignment: .leading)
                     Eyebrow("Value").frame(maxWidth: .infinity, alignment: .leading)
                     Color.clear.frame(width: 22, height: 1)
                 }
                 ScrollView {
-                    VStack(spacing: 6) {
+                    VStack(spacing: Theme.Space.s) {
                         ForEach(rows) { current in
                             let row = $rows.element(current)
-                            HStack(spacing: 10) {
+                            HStack(spacing: Theme.Space.s) {
                                 Toggle("", isOn: row.enabled)
                                     .labelsHidden()
                                     .toggleStyle(.switch)
@@ -40,16 +40,17 @@ struct KeyValueEditor: View {
                                 Button {
                                     rows.removeAll { $0.id == current.id }
                                 } label: {
-                                    Image(systemName: "xmark").font(.system(size: 11, weight: .semibold)).hitTarget()
+                                    Image(systemName: "xmark").font(.subheadline.weight(.semibold)).hitTarget()
                                 }
                                 .buttonStyle(LinkButtonStyle())
                                 .help("Remove")
                             }
                         }
+                        Button("Add \(noun)", systemImage: "plus") { rows.append(KeyValue()) }
+                            .buttonStyle(LinkButtonStyle())
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
-                Button("Add \(noun)", systemImage: "plus") { rows.append(KeyValue()) }
-                    .buttonStyle(LinkButtonStyle())
             }
         }
     }

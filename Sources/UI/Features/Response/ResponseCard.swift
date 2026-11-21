@@ -28,7 +28,7 @@ struct ResponseCard: View {
                 }
             }
         }
-        .font(.system(size: 13))
+        .font(.body)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .card()
         .onChange(of: store.response?.id, initial: true) {
@@ -40,14 +40,14 @@ struct ResponseCard: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center, spacing: 0) {
                 ResponseSummary(response: response)
-                Spacer(minLength: 16)
+                Spacer(minLength: Theme.Space.l)
                 Segmented(
                     options: [(.body, "Body"), (.headers, "Headers \(response.headers.count)")],
                     selection: $tab
                 )
             }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 14)
+            .padding(.horizontal, Theme.Space.l)
+            .padding(.vertical, Theme.Space.m)
             Hairline()
 
             switch tab {
@@ -67,7 +67,7 @@ struct ResponseCard: View {
     }
 
     private func bodyToolbar(_ response: ResponseResult) -> some View {
-        HStack(spacing: 14) {
+        HStack(spacing: Theme.Space.m) {
             if let tree = response.tree {
                 Segmented(options: [(.tree, "Tree"), (.raw, "Raw")], selection: $jsonMode)
                 if jsonMode == .tree, !tree.isScalar {
@@ -79,7 +79,7 @@ struct ResponseCard: View {
             }
             Spacer()
             Text("Received \(response.receivedAt.formatted(.relative(presentation: .named)))")
-                .font(.system(size: 11))
+                .font(.subheadline)
                 .foregroundStyle(Theme.faint)
                 .help(response.receivedAt.formatted(date: .abbreviated, time: .standard))
             Button(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc") {
@@ -90,16 +90,16 @@ struct ResponseCard: View {
                     copied = false
                 }
             }
-            .buttonStyle(PillButtonStyle())
+            .buttonStyle(ControlButtonStyle())
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 8)
+        .padding(.horizontal, Theme.Space.l)
+        .padding(.vertical, Theme.Space.s)
         .overlay(alignment: .bottom) { Hairline() }
     }
 
     private func placeholder(@ViewBuilder content: () -> some View) -> some View {
-        VStack(spacing: 8, content: content)
-            .padding(32)
+        VStack(spacing: Theme.Space.s, content: content)
+            .padding(Theme.Space.xxl)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

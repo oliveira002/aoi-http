@@ -6,10 +6,10 @@ struct UnresolvedBanner: View {
     var body: some View {
         let missing = store.draft.unresolvedVariables(store.variables)
         if !missing.isEmpty {
-            HStack(spacing: 8) {
+            HStack(spacing: Theme.Space.s) {
                 Image(systemName: "exclamationmark.triangle.fill")
                 Text(missing.map { "{{\($0)}}" }.joined(separator: ", "))
-                    .font(.system(size: 12.5, design: .monospaced))
+                    .font(.callout.monospaced())
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .help(missing.joined(separator: ", "))
@@ -33,11 +33,11 @@ struct UnresolvedBanner: View {
                 .menuStyle(.borderlessButton)
                 .fixedSize()
             }
-            .font(.system(size: 12.5))
+            .font(.callout)
             .foregroundStyle(Theme.warn)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Theme.warn.opacity(0.1), in: .rect(cornerRadius: 10))
+            .padding(.horizontal, Theme.Space.l)
+            .padding(.vertical, Theme.Space.s)
+            .background(Theme.warn.opacity(0.1), in: .rect(cornerRadius: Theme.Radius.container))
         }
     }
 }

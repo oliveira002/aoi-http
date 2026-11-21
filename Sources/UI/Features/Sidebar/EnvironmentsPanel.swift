@@ -5,8 +5,8 @@ struct EnvironmentsPanel: View {
     let search: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 14) {
+        VStack(alignment: .leading, spacing: Theme.Space.s) {
+            HStack(spacing: Theme.Space.m) {
                 Button("Import", systemImage: "square.and.arrow.down") { store.showingImporter = true }
                     .help("Import a Postman environment or a Postman data export")
                 Button("New", systemImage: "plus") { store.addEnvironment() }
@@ -20,24 +20,24 @@ struct EnvironmentsPanel: View {
                     title: "Environments",
                     message: "Keep values like baseUrl or token for dev, staging and prod, and switch between them in one click."
                 ) {
-                    Button("New Environment") { store.addEnvironment() }.buttonStyle(PillButtonStyle(primary: true))
+                    Button("New Environment") { store.addEnvironment() }.buttonStyle(ControlButtonStyle(primary: true))
                     Button("or import from Postman") { store.showingImporter = true }.buttonStyle(LinkButtonStyle())
                 }
                 .raisedPanel()
                 Spacer()
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 1) {
+                    LazyVStack(spacing: 0) {
                         globalsRow
                         sessionRow
-                        Hairline().padding(.vertical, 6)
+                        Hairline().padding(.vertical, Theme.Space.s)
                         ForEach(filtered) { row($0) }
                     }
                 }
                 Text("Click the circle to make an environment active.")
-                    .font(.system(size: 11))
+                    .font(.subheadline)
                     .foregroundStyle(Theme.faint)
-                    .padding(.bottom, 10)
+                    .padding(.bottom, Theme.Space.m)
             }
         }
     }
@@ -46,7 +46,7 @@ struct EnvironmentsPanel: View {
         SidebarRow(selected: store.detail == .variables(.globals), action: { store.showVariables(.globals) }) {
             Image(systemName: "globe").foregroundStyle(Theme.accent)
             Text("Globals").fontWeight(.semibold)
-            Spacer(minLength: 4)
+            Spacer(minLength: Theme.Space.xs)
             CountLabel(count: store.globals.active.count)
         }
         .help("Values every request uses, such as token")
@@ -58,7 +58,7 @@ struct EnvironmentsPanel: View {
             SidebarRow(selected: store.detail == .variables(.session), action: { store.showVariables(.session) }) {
                 Image(systemName: "clock").foregroundStyle(Theme.warn)
                 Text("This Session").fontWeight(.semibold)
-                Spacer(minLength: 4)
+                Spacer(minLength: Theme.Space.xs)
                 CountLabel(count: store.sessionVariables.active.count)
             }
             .help("Values taken from responses. Gone when you quit Aoi.")
@@ -78,12 +78,12 @@ struct EnvironmentsPanel: View {
             .buttonStyle(.plain)
             .help(active ? "Active. Click to turn off." : "Make active")
             Text(environment.name).lineLimit(1).fontWeight(active ? .semibold : .regular)
-            Spacer(minLength: 4)
+            Spacer(minLength: Theme.Space.xs)
             Button {
                 store.toggleProduction(environment.id)
             } label: {
                 Image(systemName: environment.isProduction ? "shield.lefthalf.filled" : "shield")
-                    .font(.system(size: 11))
+                    .font(.subheadline)
                     .foregroundStyle(environment.isProduction ? Theme.bad : Theme.faint.opacity(0.6))
                     .hitTarget()
             }

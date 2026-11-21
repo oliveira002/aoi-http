@@ -7,7 +7,7 @@ struct VariablesEditor: View {
 
     var body: some View {
         @Bindable var store = store
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: Theme.Space.l) {
             switch scope {
             case .globals:
                 header(eyebrow: "Globals", name: nil, subtitle: "Every request uses these. A collection or environment with the same name overrides them.") {
@@ -16,7 +16,7 @@ struct VariablesEditor: View {
             case .session:
                 header(eyebrow: "This Session", name: nil, subtitle: "Values taken from responses. They override everything else and are gone when you quit Aoi.") {
                     ConfirmedButton(title: "Clear", question: "Clear all session values?") { store.sessionVariables = [] }
-                        .buttonStyle(PillButtonStyle())
+                        .buttonStyle(ControlButtonStyle())
                 }
             case .collection(let id):
                 if let collection = store.collection(id) {
@@ -25,7 +25,7 @@ struct VariablesEditor: View {
                         name: $store.collections.element(collection).name,
                         subtitle: "\(Format.count(collection.requests.count, "request")). These override globals for requests in this collection."
                     ) {
-                        Button("Delete") { store.pendingDeletion = .collection(id) }.buttonStyle(PillButtonStyle())
+                        Button("Delete") { store.pendingDeletion = .collection(id) }.buttonStyle(ControlButtonStyle())
                     }
                 }
             case .environment(let id):
@@ -39,28 +39,28 @@ struct VariablesEditor: View {
                         Toggle("Production", isOn: Binding(get: { environment.isProduction }, set: { store.setProduction($0, for: id) }))
                             .toggleStyle(.switch)
                             .controlSize(.small)
-                            .font(.system(size: 13))
+                            .font(.body)
                             .help("Ask before sending while this environment is active")
                         Toggle("Active", isOn: Binding(get: { active }, set: { store.activeEnvironmentID = $0 ? id : nil }))
                             .toggleStyle(.switch)
                             .controlSize(.small)
-                            .font(.system(size: 13))
-                        Button("Duplicate") { store.duplicateEnvironment(id) }.buttonStyle(PillButtonStyle())
-                        Button("Delete") { store.pendingDeletion = .environment(id) }.buttonStyle(PillButtonStyle())
+                            .font(.body)
+                        Button("Duplicate") { store.duplicateEnvironment(id) }.buttonStyle(ControlButtonStyle())
+                        Button("Delete") { store.pendingDeletion = .environment(id) }.buttonStyle(ControlButtonStyle())
                     }
                 }
             }
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: Theme.Space.m) {
                 if case .environment(let id) = scope, let environment = store.environment(id) {
                     Eyebrow("Base URL")
                     VariableField(
                         title: "https://api.example.com",
                         text: $store.environments.element(environment).baseURL,
                         highlightsVariables: false,
-                        font: .system(size: 14, design: .monospaced)
+                        font: .title3.monospaced()
                     )
-                    Text("Requests use it as {{baseUrl}}.").font(.system(size: 12)).foregroundStyle(Theme.faint)
-                    Eyebrow("Other variables").padding(.top, 10)
+                    Text("Requests use it as {{baseUrl}}.").font(.callout).foregroundStyle(Theme.faint)
+                    Eyebrow("Other variables").padding(.top, Theme.Space.m)
                     KeyValueEditor(
                         rows: $store.environments.element(environment).otherVariables,
                         noun: "variable",
@@ -77,7 +77,7 @@ struct VariablesEditor: View {
                     )
                 }
             }
-            .padding(18)
+            .padding(Theme.Space.l)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .card()
         }

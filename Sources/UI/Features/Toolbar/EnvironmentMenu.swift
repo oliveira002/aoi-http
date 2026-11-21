@@ -29,19 +29,19 @@ struct EnvironmentMenu: View {
             }
             Button("Manage Environments…") { store.sidebarTab = .environments }
         } label: {
-            HStack(spacing: 8) {
+            HStack(spacing: Theme.Space.s) {
                 if active?.isProduction == true {
                     Image(systemName: "shield.lefthalf.filled")
-                        .font(.system(size: 11))
+                        .font(.subheadline)
                         .foregroundStyle(Theme.bad)
                 } else {
                     Circle().fill(active == nil ? Theme.faint : Theme.accent).frame(width: 7, height: 7)
                 }
                 Text(active?.name ?? "No Environment").lineLimit(1)
-                Image(systemName: "chevron.down").font(.system(size: 9, weight: .bold)).foregroundStyle(Theme.muted)
+                Image(systemName: "chevron.down").font(.caption.weight(.bold)).foregroundStyle(Theme.muted)
             }
         }
-        .pillMenu()
+        .controlMenu()
         .help("Variables like {{baseUrl}} resolve from the active environment")
     }
 }

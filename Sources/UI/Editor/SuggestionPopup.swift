@@ -12,6 +12,8 @@ final class SuggestionPopup {
     var onPick: ((BodySuggestion) -> Void)?
     private let model = Model()
     private static let rowHeight: CGFloat = 40
+    // The list's padding plus a row's, so a suggestion's text starts right under the caret.
+    private static let textInset = Theme.Space.xs + Theme.Space.s
     private static let width: CGFloat = 380
 
     private lazy var panel: NSPanel = {
@@ -34,7 +36,7 @@ final class SuggestionPopup {
         model.selected = keep ?? 0
         let caret = textView.firstRect(forCharacterRange: NSRange(location: location, length: 0), actualRange: nil)
         let height = CGFloat(min(items.count, 7)) * Self.rowHeight + 8
-        var origin = NSPoint(x: caret.minX - 10, y: caret.minY - height - 4)
+        var origin = NSPoint(x: caret.minX - Self.textInset, y: caret.minY - height - 4)
         if let screen = textView.window?.screen?.visibleFrame, origin.y < screen.minY {
             origin.y = caret.maxY + 4
         }
@@ -66,7 +68,7 @@ final class SuggestionPopup {
                             row(item, selected: index == model.selected).id(item.id)
                         }
                     }
-                    .padding(4)
+                    .padding(Theme.Space.xs)
                 }
                 .scrollIndicators(.never)
                 .onChange(of: model.selected) {
@@ -74,33 +76,33 @@ final class SuggestionPopup {
                     proxy.scrollTo(model.items[model.selected].id)
                 }
             }
-            .background(Theme.card, in: .rect(cornerRadius: 10))
-            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Theme.line))
+            .background(Theme.card, in: .rect(cornerRadius: Theme.Radius.container))
+            .overlay(RoundedRectangle(cornerRadius: Theme.Radius.container).strokeBorder(Theme.line))
         }
 
         private func row(_ item: BodySuggestion, selected: Bool) -> some View {
-            HStack(alignment: .center, spacing: 10) {
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
+            HStack(alignment: .center, spacing: Theme.Space.s) {
+                VStack(alignment: .leading, spacing: Theme.Space.xs) {
+                    HStack(spacing: Theme.Space.s) {
                         Text(item.label)
-                            .font(.system(size: 12.5, weight: .semibold, design: .monospaced))
+                            .font(.callout.monospaced().weight(.semibold))
                             .foregroundStyle(Theme.JSONColors.key)
                             .lineLimit(1)
                         if item.required {
-                            Text("required").font(.system(size: 10, weight: .medium)).foregroundStyle(Theme.bad)
+                            Text("required").font(.caption.weight(.medium)).foregroundStyle(Theme.bad)
                         }
                     }
                     if let description = item.description {
-                        Text(description).font(.system(size: 11)).foregroundStyle(Theme.muted).lineLimit(1)
+                        Text(description).font(.subheadline).foregroundStyle(Theme.muted).lineLimit(1)
                     }
                 }
-                Spacer(minLength: 8)
-                Text(item.detail).font(.system(size: 11, design: .monospaced)).foregroundStyle(Theme.faint).lineLimit(1)
+                Spacer(minLength: Theme.Space.s)
+                Text(item.detail).font(.subheadline.monospaced()).foregroundStyle(Theme.faint).lineLimit(1)
             }
-            .padding(.horizontal, 10)
+            .padding(.horizontal, Theme.Space.s)
             .frame(height: SuggestionPopup.rowHeight - 4)
-            .background(selected ? Theme.accentSoft : .clear, in: .rect(cornerRadius: 7))
-            .padding(.vertical, 2)
+            .background(selected ? Theme.accentSoft : .clear, in: .rect(cornerRadius: Theme.Radius.control))
+            .padding(.vertical, Theme.Space.xs / 2)
             .contentShape(Rectangle())
             .onTapGesture { pick(item) }
         }

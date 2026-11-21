@@ -25,13 +25,12 @@ struct JSONTreeView: View {
                                 shown[parent, default: JSONTree.page] += JSONTree.page
                             }
                             .buttonStyle(LinkButtonStyle())
-                            .padding(.leading, CGFloat(row.depth) * JSONRowView.indent + 23)
-                            .padding(.vertical, 4)
+                            .padding(.leading, CGFloat(row.depth) * JSONRowView.indent + JSONRowView.textOffset)
+                            .padding(.vertical, Theme.Space.xs)
                         }
                     }
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
+                .padding(Theme.Space.l)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .onChange(of: scrollRequest) { scroll(proxy) }

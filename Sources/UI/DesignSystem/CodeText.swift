@@ -41,13 +41,13 @@ struct CodeText: View {
     var body: some View {
         Group {
             if let layout {
-                HStack(alignment: .top, spacing: 14) {
+                HStack(alignment: .top, spacing: Theme.Space.m) {
                     // Same font and no wrapping on either side, so numbers stay level with their lines.
                     Text(layout.lineNumbers)
                         .font(Theme.mono)
                         .foregroundStyle(Theme.faint.opacity(0.8))
                         .multilineTextAlignment(.trailing)
-                        .padding(.trailing, 10)
+                        .padding(.trailing, Theme.Space.s)
                         .overlay(alignment: .trailing) { Hairline(axis: .vertical) }
                     MarkedText(layout: layout, highlights: highlights)
                         .equatable()

@@ -4,7 +4,7 @@ extension View {
     // ⌘F find in the top-right corner. The caller searches whenever `query` changes and moves on `step`.
     func findBar(query: Binding<String>, summary: String, found: Bool, step: @escaping (Int) -> Void) -> some View {
         overlay(alignment: .topTrailing) {
-            FindBar(query: query, summary: summary, found: found, step: step).padding(10)
+            FindBar(query: query, summary: summary, found: found, step: step).padding(Theme.Space.s)
         }
     }
 }
@@ -33,7 +33,7 @@ private struct FindBar: View {
     }
 
     private var bar: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Theme.Space.s) {
             Image(systemName: "magnifyingglass").foregroundStyle(Theme.faint)
             TextField("Find in response", text: $query)
                 .textFieldStyle(.plain)
@@ -58,19 +58,18 @@ private struct FindBar: View {
                 .accessibilityLabel("Close find")
         }
         .buttonStyle(.plain)
-        .font(.system(size: 12))
+        .font(.callout)
         .foregroundStyle(Theme.muted)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(Theme.card, in: .rect(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Theme.line))
+        .padding(Theme.Space.s)
+        .background(Theme.card, in: .rect(cornerRadius: Theme.Radius.container))
+        .overlay(RoundedRectangle(cornerRadius: Theme.Radius.container).strokeBorder(Theme.line))
         .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
     }
 
     private var openButton: some View {
         Button(action: open) { Image(systemName: "magnifyingglass") }
             .buttonStyle(IconButtonStyle())
-            .background(Theme.card.opacity(0.9), in: .rect(cornerRadius: 8))
+            .background(Theme.card.opacity(0.9), in: .rect(cornerRadius: Theme.Radius.control))
             .help("Find in response (⌘F)")
             .accessibilityLabel("Find in response")
     }

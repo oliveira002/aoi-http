@@ -1,8 +1,7 @@
 import AppKit
 import SwiftUI
 
-// The main window publishes its store while it is in front. With Settings in front it is nil,
-// so the menus never reach a window the user is not looking at.
+// The main window publishes its store while it is in front, so the menus act on the window being looked at.
 struct WorkspaceKey: FocusedValueKey {
     typealias Value = Store
 }
@@ -18,7 +17,16 @@ struct WorkspaceCommands: Commands {
     @FocusedValue(\.workspace) private var store
 
     var body: some Commands {
-        SidebarCommands()
+        CommandGroup(replacing: .sidebar) {
+            Button(store?.sidebarCollapsed == true ? "Show Sidebar" : "Hide Sidebar") { store.map { $0.sidebarCollapsed.toggle() } }
+                .keyboardShortcut("s", modifiers: [.control, .command])
+                .disabled(store == nil)
+        }
+        CommandGroup(replacing: .appSettings) {
+            Button("Settings…") { store?.detail = .settings }
+                .keyboardShortcut(",")
+                .disabled(store == nil)
+        }
         CommandGroup(replacing: .newItem) {
             Group {
                 Button("New Tab") { store?.newRequest() }
@@ -33,7 +41,7 @@ struct WorkspaceCommands: Commands {
             .disabled(store == nil)
         }
         CommandGroup(after: .newItem) {
-            // ⌘W closes a tab in the main window and closes any other window, such as Settings, like on any Mac.
+            // ⌘W closes a tab in the main window, and any other window, such as an open panel, as usual.
             Button(store == nil ? "Close" : "Close Tab") {
                 guard let store else { return closeWindow() }
                 store.closeTab(store.activeTabID)
