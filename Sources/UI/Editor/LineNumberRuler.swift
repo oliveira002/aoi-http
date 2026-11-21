@@ -25,7 +25,7 @@ final class LineNumberRuler: NSRulerView {
         else { return }
         let string = textView.string as NSString
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .regular),
+            .font: NSFont.monospacedDigitSystemFont(ofSize: Theme.monoSize, weight: .regular),
             .foregroundColor: NSColor(Theme.faint),
         ]
         let visible = layout.glyphRange(forBoundingRect: textView.visibleRect, in: container)
@@ -37,7 +37,7 @@ final class LineNumberRuler: NSRulerView {
             let text = "\(number)" as NSString
             let size = text.size(withAttributes: attributes)
             let point = convert(NSPoint(x: 0, y: y), from: textView)
-            text.draw(at: NSPoint(x: ruleThickness - size.width - 8, y: point.y + 1), withAttributes: attributes)
+            text.draw(at: NSPoint(x: ruleThickness - size.width - Theme.Space.s, y: point.y + 1), withAttributes: attributes)
         }
 
         while index < string.length, index <= NSMaxRange(layout.characterRange(forGlyphRange: visible, actualGlyphRange: nil)) {

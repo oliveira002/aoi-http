@@ -28,6 +28,8 @@ enum Theme {
     }
     static let monoSize: CGFloat = 12
     static let mono = Font.system(size: monoSize, design: .monospaced)
+    // The one custom size: method names in tags only a little wider than the name.
+    static let tagFont = Font.system(size: 9, weight: .bold, design: .monospaced)
     // Buttons, fields, segmented controls, tabs and sidebar rows share the macOS large control height.
     static let controlHeight: CGFloat = 28
 
@@ -45,6 +47,8 @@ enum Theme {
         static let tag: CGFloat = 4
         static let control: CGFloat = 6
         static let container: CGFloat = 10
+        // A mark on a single line of code, such as the current find match.
+        static let mark: CGFloat = 2
     }
     // Ao: the blue-green of the sea, from teal down to the app's deep green.
     static let brandLight = Color(red: 0.22, green: 0.62, blue: 0.64)

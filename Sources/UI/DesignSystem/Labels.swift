@@ -53,7 +53,7 @@ struct MethodTag: View {
 
     var body: some View {
         Text(method == .DELETE ? "DEL" : method == .OPTIONS ? "OPT" : method.rawValue)
-            .font(.system(size: 9, weight: .bold, design: .monospaced))
+            .font(Theme.tagFont)
             .foregroundStyle(Theme.method(method))
             .frame(width: 40, height: 17)
             .background(Theme.method(method).opacity(0.12), in: .rect(cornerRadius: Theme.Radius.tag))

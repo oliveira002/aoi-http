@@ -74,7 +74,7 @@ struct CodeText: View {
                 let lineHeight = proxy.size.height / CGFloat(layout.lineCount)
                 let charWidth = proxy.size.width / CGFloat(layout.longestLine)
                 let width = charWidth * CGFloat(text[current].count)
-                RoundedRectangle(cornerRadius: 2)
+                RoundedRectangle(cornerRadius: Theme.Radius.mark)
                     .fill(Theme.warn.opacity(0.22))
                     .frame(width: width, height: lineHeight)
                     .allowsHitTesting(false)
